@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geometry Dash Clone</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #222;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: white;
+        font-family: sans-serif;
+      }
+      canvas {
+        border: 2px solid white;
+        background-color: #000;
+      }
+      #ui {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ui">
+      <h1>Geometry Dash Clone</h1>
+      <div id="level-select">
+        <button onclick="startGame('stereo-madness')">Stereo Madness</button>
+        <button onclick="startGame('cant-let-go')">Can't Let Go</button>
+        <button onclick="startGame('deadlocked')">Deadlocked</button>
+      </div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
