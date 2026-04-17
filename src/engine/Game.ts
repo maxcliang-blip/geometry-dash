@@ -14,7 +14,11 @@ export class Game {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.player = new Player();
-    this.level = level;
+    // Clone and sort objects for performance optimization (frustum culling and spatial pruning)
+    this.level = {
+      ...level,
+      objects: [...level.objects].sort((a, b) => a.x - b.x)
+    };
 
     this.canvas.width = 800;
     this.canvas.height = 450;
@@ -57,18 +61,23 @@ export class Game {
   private checkCollisions() {
     let groundedOnObject = false;
 
+    const playerLeft = this.player.x;
+    const playerRight = this.player.x + this.player.width;
+
     for (const obj of this.level.objects) {
-      const playerTop = this.player.y - this.player.height;
-      const playerBottom = this.player.y;
-      const playerLeft = this.player.x;
-      const playerRight = this.player.x + this.player.width;
+      // Horizontal pruning: skip objects that are too far right
+      if (obj.x > playerRight) break;
+
+      // Skip objects that are too far left
+      if (obj.x + obj.width < playerLeft) continue;
 
       const objTop = -obj.y - obj.height;
       const objBottom = -obj.y;
       const objLeft = obj.x;
       const objRight = obj.x + obj.width;
 
-      if (this.rectIntersect(playerLeft, playerTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      // Use current player Y as it might change during resolution (snapping to top of block)
+      if (this.rectIntersect(this.player.x, this.player.y - this.player.height, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -119,8 +128,15 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    // Draw objects
+    // Draw objects (with frustum culling)
+    const viewportRight = cameraX + canvas.width;
     for (const obj of level.objects) {
+      // Since objects are sorted by X, we can break early if we exceed the viewport
+      if (obj.x > viewportRight) break;
+
+      // Skip objects that are to the left of the viewport
+      if (obj.x + obj.width < cameraX) continue;
+
       if (obj.type === 'block') {
         ctx.fillStyle = '#eee';
         ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
