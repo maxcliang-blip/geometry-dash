@@ -22,20 +22,67 @@
       }
       #ui {
         position: absolute;
-        top: 0;
-        left: 0;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        text-align: center;
+        z-index: 10;
         padding: 20px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 16px;
+        backdrop-filter: blur(4px);
+      }
+      h1 {
+        font-size: 2.5rem;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      }
+      #level-select {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      button {
+        background: #33ccff;
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        font-size: 1.25rem;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.1s, background 0.2s, box-shadow 0.1s;
+        box-shadow: 0 4px 0 #0099cc;
+        width: 280px;
+        font-family: inherit;
+      }
+      button:hover {
+        background: #4dd2ff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0 #0099cc;
+      }
+      button:active {
+        transform: translateY(2px);
+        box-shadow: 0 0 0 #0099cc;
+      }
+      button:focus-visible {
+        outline: 3px solid #fff;
+        outline-offset: 4px;
       }
     </style>
   </head>
   <body>
     <div id="ui">
       <h1>Geometry Dash Clone</h1>
-      <div id="level-select">
-        <button onclick="startGame('stereo-madness')">Stereo Madness</button>
-        <button onclick="startGame('cant-let-go')">Can't Let Go</button>
-        <button onclick="startGame('deadlocked')">Deadlocked</button>
-      </div>
+      <nav id="level-select" aria-label="Level selection">
+        <button onclick="startGame('stereo-madness')" aria-label="Play Stereo Madness: Easy difficulty">Stereo Madness</button>
+        <button onclick="startGame('cant-let-go')" aria-label="Play Can't Let Go: Hard difficulty">Can't Let Go</button>
+        <button onclick="startGame('deadlocked')" aria-label="Play Deadlocked: Demon difficulty">Deadlocked</button>
+      </nav>
     </div>
     <canvas id="gameCanvas"></canvas>
     <script type="module" src="/src/main.ts"></script>
