@@ -1,0 +1,3 @@
+## 2025-05-14 - Object Sorting and Batch Rendering
+**Learning:** Sorting level objects by X-coordinate once in the constructor provides an $O(1)$ lookup for the starting visible/collidable objects (using spatial pruning) and allows $O(M)$ processing where $M$ is the number of active objects, rather than $O(N)$ total objects. Batching draw calls using `Path2D` significantly reduces canvas state overhead.
+**Action:** Always prefer pre-sorting static game world objects by a primary axis to enable spatial partitioning without the overhead of more complex structures like Quadtrees for simple side-scrollers.
