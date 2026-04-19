@@ -9,12 +9,16 @@ export class Game {
   private animationFrameId: number | null = null;
   private cameraX: number = 0;
   private groundY: number;
+  private sortedObjects: GameObject[];
 
   constructor(canvas: HTMLCanvasElement, level: LevelData) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.player = new Player();
     this.level = level;
+
+    // Clone and sort objects by X-coordinate for efficient spatial pruning
+    this.sortedObjects = [...level.objects].sort((a, b) => a.x - b.x);
 
     this.canvas.width = 800;
     this.canvas.height = 450;
@@ -57,7 +61,15 @@ export class Game {
   private checkCollisions() {
     let groundedOnObject = false;
 
-    for (const obj of this.level.objects) {
+    // Spatial pruning: only check objects within a reasonable range of the player
+    const playerX = this.player.x;
+    const range = 100; // Look ahead and behind 100 pixels
+
+    for (const obj of this.sortedObjects) {
+      // Since objects are sorted by X, we can skip those far behind and break early for those far ahead
+      if (obj.x + obj.width < playerX - range) continue;
+      if (obj.x > playerX + this.player.width + range) break;
+
       const playerTop = this.player.y - this.player.height;
       const playerBottom = this.player.y;
       const playerLeft = this.player.x;
@@ -119,22 +131,32 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    // Draw objects
-    for (const obj of level.objects) {
+    // Draw objects with frustum culling and batching
+    const blockBatch = new Path2D();
+    const spikeBatch = new Path2D();
+
+    for (const obj of this.sortedObjects) {
+      // Frustum culling: skip objects outside the viewport
+      if (obj.x + obj.width < cameraX) continue;
+      if (obj.x > cameraX + canvas.width) break;
+
       if (obj.type === 'block') {
-        ctx.fillStyle = '#eee';
-        ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        ctx.strokeStyle = '#000';
-        ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blockBatch.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
       } else if (obj.type === 'spike') {
-        ctx.fillStyle = '#ff4444';
-        ctx.beginPath();
-        ctx.moveTo(obj.x, -obj.y);
-        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
-        ctx.lineTo(obj.x + obj.width, -obj.y);
-        ctx.fill();
+        spikeBatch.moveTo(obj.x, -obj.y);
+        spikeBatch.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikeBatch.lineTo(obj.x + obj.width, -obj.y);
       }
     }
+
+    // Fill and stroke batches
+    ctx.fillStyle = '#eee';
+    ctx.fill(blockBatch);
+    ctx.strokeStyle = '#000';
+    ctx.stroke(blockBatch);
+
+    ctx.fillStyle = '#ff4444';
+    ctx.fill(spikeBatch);
 
     // Draw player
     ctx.save();
