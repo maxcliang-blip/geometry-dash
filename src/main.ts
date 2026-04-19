@@ -33,8 +33,14 @@ function startGame(levelKey: string) {
   currentGame.start();
 }
 
-// @ts-ignore
-window.startGame = startGame;
+document.querySelectorAll('#level-select button').forEach((button) => {
+  button.addEventListener('click', () => {
+    const levelKey = (button as HTMLButtonElement).dataset.level;
+    if (levelKey) {
+      startGame(levelKey);
+    }
+  });
+});
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
