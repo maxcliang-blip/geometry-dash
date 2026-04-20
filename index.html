@@ -26,15 +26,49 @@
         left: 0;
         padding: 20px;
       }
+      #level-select {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #444;
+        color: white;
+        border: 2px solid #666;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+      button:hover {
+        background-color: #666;
+        border-color: #fff;
+        transform: translateY(-2px);
+      }
+      button:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px #00ffff;
+        border-color: #00ffff;
+      }
+      button:active {
+        transform: translateY(0);
+      }
     </style>
   </head>
   <body>
     <div id="ui">
       <h1>Geometry Dash Clone</h1>
       <div id="level-select">
-        <button onclick="startGame('stereo-madness')">Stereo Madness</button>
-        <button onclick="startGame('cant-let-go')">Can't Let Go</button>
-        <button onclick="startGame('deadlocked')">Deadlocked</button>
+        <button data-level="stereo-madness" aria-label="Play Stereo Madness - Easy difficulty">
+          Stereo Madness (Easy)
+        </button>
+        <button data-level="cant-let-go" aria-label="Play Can't Let Go - Hard difficulty">
+          Can't Let Go (Hard)
+        </button>
+        <button data-level="deadlocked" aria-label="Play Deadlocked - Demon difficulty">
+          Deadlocked (Demon)
+        </button>
       </div>
     </div>
     <canvas id="gameCanvas"></canvas>

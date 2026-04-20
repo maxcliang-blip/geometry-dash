@@ -33,12 +33,26 @@ function startGame(levelKey: string) {
   currentGame.start();
 }
 
-// @ts-ignore
-window.startGame = startGame;
+// Attach event listeners to level buttons
+document.querySelectorAll('#level-select button').forEach((button) => {
+  button.addEventListener('click', () => {
+    const levelKey = (button as HTMLButtonElement).dataset.level;
+    if (levelKey) {
+      startGame(levelKey);
+    }
+  });
+});
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     currentGame?.handleInput();
+  } else if (e.code === 'Escape') {
+    if (currentGame) {
+      currentGame.stop();
+      currentGame = null;
+      ui.style.display = 'block';
+      canvas.style.display = 'none';
+    }
   }
 });
 
