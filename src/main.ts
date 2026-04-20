@@ -1,3 +1,4 @@
+import './style.css';
 import { Game } from './engine/Game';
 import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/data';
 
@@ -33,8 +34,14 @@ function startGame(levelKey: string) {
   currentGame.start();
 }
 
-// @ts-ignore
-window.startGame = startGame;
+document.querySelectorAll('.level-btn').forEach((button) => {
+  button.addEventListener('click', () => {
+    const level = button.getAttribute('data-level');
+    if (level) {
+      startGame(level);
+    }
+  });
+});
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
