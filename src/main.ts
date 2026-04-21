@@ -4,6 +4,7 @@ import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/dat
 let currentGame: Game | null = null;
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ui = document.getElementById('ui') as HTMLDivElement;
+const levelButtons = document.querySelectorAll('#level-select button');
 
 function startGame(levelKey: string) {
   let levelData: LevelData;
@@ -33,12 +34,28 @@ function startGame(levelKey: string) {
   currentGame.start();
 }
 
-// @ts-ignore
-window.startGame = startGame;
+// Add event listeners to level buttons
+levelButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const level = button.getAttribute('data-level');
+    if (level) {
+      startGame(level);
+    }
+  });
+});
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     currentGame?.handleInput();
+  }
+
+  if (e.code === 'Escape') {
+    if (currentGame) {
+      currentGame.stop();
+      currentGame = null;
+      ui.style.display = 'flex';
+      canvas.style.display = 'none';
+    }
   }
 });
 
@@ -47,6 +64,8 @@ window.addEventListener('mousedown', () => {
 });
 
 window.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  currentGame?.handleInput();
+  if (currentGame) {
+    e.preventDefault();
+    currentGame.handleInput();
+  }
 });
