@@ -1,3 +1,4 @@
+import './style.css';
 import { Game } from './engine/Game';
 import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/data';
 
@@ -26,15 +27,29 @@ function startGame(levelKey: string) {
     currentGame.stop();
   }
 
-  ui.style.display = 'none';
-  canvas.style.display = 'block';
+  if (ui) {
+    ui.className = 'hidden';
+  }
+  if (canvas) {
+    canvas.className = 'visible';
+  }
 
   currentGame = new Game(canvas, levelData);
   currentGame.start();
 }
 
-// @ts-ignore
-window.startGame = startGame;
+// Add event listeners for level selection buttons
+const levelSelect = document.getElementById('level-select');
+if (levelSelect) {
+  levelSelect.querySelectorAll('button').forEach((button) => {
+    button.addEventListener('click', () => {
+      const level = (button as HTMLButtonElement).dataset.level;
+      if (level) {
+        startGame(level);
+      }
+    });
+  });
+}
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
