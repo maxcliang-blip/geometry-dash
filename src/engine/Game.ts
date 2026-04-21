@@ -9,12 +9,22 @@ export class Game {
   private animationFrameId: number | null = null;
   private cameraX: number = 0;
   private groundY: number;
+  private maxObjWidth: number = 0;
 
   constructor(canvas: HTMLCanvasElement, level: LevelData) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.player = new Player();
-    this.level = level;
+    // Optimization: Sort objects by x-coordinate to allow binary search for spatial pruning
+    this.level = {
+      ...level,
+      objects: [...level.objects].sort((a, b) => a.x - b.x),
+    };
+
+    // Track max width to ensure binary search includes wide objects starting before the viewport
+    for (const obj of this.level.objects) {
+      if (obj.width > this.maxObjWidth) this.maxObjWidth = obj.width;
+    }
 
     this.canvas.width = 800;
     this.canvas.height = 450;
@@ -54,10 +64,44 @@ export class Game {
     }
   }
 
+  /**
+   * Performs O(log N) lookup to find objects in a specific X range.
+   * Uses a callback to avoid array allocations in hot loops.
+   */
+  private forEachInRange(minX: number, maxX: number, callback: (obj: GameObject) => void): void {
+    const objects = this.level.objects;
+    let start = 0;
+    let end = objects.length - 1;
+    let startIndex = 0;
+
+    // Binary search for first object that could overlap the range [minX, maxX]
+    // An object overlaps if obj.x + obj.width >= minX AND obj.x <= maxX.
+    // Since they are sorted by x, we find the first index where obj.x >= minX - maxObjWidth.
+    const searchX = minX - this.maxObjWidth;
+
+    while (start <= end) {
+      const mid = (start + end) >> 1;
+      if (objects[mid].x >= searchX) {
+        startIndex = mid;
+        end = mid - 1;
+      } else {
+        start = mid + 1;
+      }
+    }
+
+    for (let i = startIndex; i < objects.length; i++) {
+      const obj = objects[i];
+      if (obj.x > maxX) break;
+      if (obj.x + obj.width >= minX) {
+        callback(obj);
+      }
+    }
+  }
+
   private checkCollisions() {
     let groundedOnObject = false;
-
-    for (const obj of this.level.objects) {
+    // Optimization: Only check objects near the player
+    this.forEachInRange(this.player.x - 50, this.player.x + 100, (obj) => {
       const playerTop = this.player.y - this.player.height;
       const playerBottom = this.player.y;
       const playerLeft = this.player.x;
@@ -93,7 +137,7 @@ export class Game {
           }
         }
       }
-    }
+    });
 
     if (groundedOnObject) {
       this.player.isGrounded = true;
@@ -119,21 +163,37 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    // Draw objects
-    for (const obj of level.objects) {
+    // Optimization: Batch drawing calls using Path2D to reduce state changes and fill() calls
+    const blockPath = new Path2D();
+    const spikePath = new Path2D();
+    let hasBlocks = false;
+    let hasSpikes = false;
+
+    // Optimization: Only draw objects within the viewport (frustum culling)
+    this.forEachInRange(cameraX - 50, cameraX + canvas.width + 50, (obj) => {
       if (obj.type === 'block') {
-        ctx.fillStyle = '#eee';
-        ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        ctx.strokeStyle = '#000';
-        ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        hasBlocks = true;
       } else if (obj.type === 'spike') {
-        ctx.fillStyle = '#ff4444';
-        ctx.beginPath();
-        ctx.moveTo(obj.x, -obj.y);
-        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
-        ctx.lineTo(obj.x + obj.width, -obj.y);
-        ctx.fill();
+        spikePath.moveTo(obj.x, -obj.y);
+        spikePath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikePath.lineTo(obj.x + obj.width, -obj.y);
+        spikePath.closePath();
+        hasSpikes = true;
       }
+    });
+
+    if (hasBlocks) {
+      ctx.fillStyle = '#eee';
+      ctx.fill(blockPath);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1;
+      ctx.stroke(blockPath);
+    }
+
+    if (hasSpikes) {
+      ctx.fillStyle = '#ff4444';
+      ctx.fill(spikePath);
     }
 
     // Draw player
