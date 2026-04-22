@@ -26,15 +26,24 @@ function startGame(levelKey: string) {
     currentGame.stop();
   }
 
-  ui.style.display = 'none';
-  canvas.style.display = 'block';
+  ui.classList.add('hidden');
+  ui.classList.remove('visible');
+  canvas.classList.add('visible');
+  canvas.classList.remove('hidden');
 
   currentGame = new Game(canvas, levelData);
   currentGame.start();
 }
 
-// @ts-ignore
-window.startGame = startGame;
+// Set up level selection event listeners
+document.querySelectorAll('#level-select button').forEach(button => {
+  button.addEventListener('click', () => {
+    const level = (button as HTMLButtonElement).dataset.level;
+    if (level) {
+      startGame(level);
+    }
+  });
+});
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
