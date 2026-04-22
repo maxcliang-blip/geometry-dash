@@ -26,8 +26,8 @@ function startGame(levelKey: string) {
     currentGame.stop();
   }
 
-  ui.style.display = 'none';
-  canvas.style.display = 'block';
+  ui.classList.add('hidden');
+  canvas.classList.remove('hidden');
 
   currentGame = new Game(canvas, levelData);
   currentGame.start();
@@ -39,6 +39,13 @@ window.startGame = startGame;
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     currentGame?.handleInput();
+  } else if (e.code === 'Escape') {
+    if (currentGame) {
+      currentGame.stop();
+      currentGame = null;
+      ui.classList.remove('hidden');
+      canvas.classList.add('hidden');
+    }
   }
 });
 
