@@ -57,11 +57,16 @@ export class Game {
   private checkCollisions() {
     let groundedOnObject = false;
 
+    const playerTop = this.player.y - this.player.height;
+    const playerBottom = this.player.y;
+    const playerLeft = this.player.x;
+    const playerRight = this.player.x + this.player.width;
+
     for (const obj of this.level.objects) {
-      const playerTop = this.player.y - this.player.height;
-      const playerBottom = this.player.y;
-      const playerLeft = this.player.x;
-      const playerRight = this.player.x + this.player.width;
+      // Spatial pruning: only check objects near the player
+      if (obj.x + obj.width < playerLeft - 30 || obj.x > playerRight + 30) {
+        continue;
+      }
 
       const objTop = -obj.y - obj.height;
       const objBottom = -obj.y;
@@ -121,6 +126,11 @@ export class Game {
 
     // Draw objects
     for (const obj of level.objects) {
+      // Viewport culling: only draw objects visible on screen
+      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) {
+        continue;
+      }
+
       if (obj.type === 'block') {
         ctx.fillStyle = '#eee';
         ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
