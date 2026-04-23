@@ -28,22 +28,29 @@ function startGame(levelKey: string) {
     currentGame.stop();
   }
 
-  ui.style.display = 'none';
-  canvas.style.display = 'block';
+  if (ui) {
+    ui.className = 'hidden';
+  }
+  if (canvas) {
+    canvas.className = 'visible';
+  }
 
   currentGame = new Game(canvas, levelData);
   currentGame.start();
 }
 
-// Add event listeners to level buttons
-levelButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    const level = button.getAttribute('data-level');
-    if (level) {
-      startGame(level);
-    }
+// Add event listeners for level selection buttons
+const levelSelect = document.getElementById('level-select');
+if (levelSelect) {
+  levelSelect.querySelectorAll('button').forEach((button) => {
+    button.addEventListener('click', () => {
+      const level = (button as HTMLButtonElement).dataset.level;
+      if (level) {
+        startGame(level);
+      }
+    });
   });
-});
+}
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
