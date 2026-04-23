@@ -35,26 +35,23 @@ function startGame(levelKey: string) {
   currentGame.start();
 }
 
-// Attach event listeners to level select buttons
-document.querySelectorAll('#level-select button').forEach((button) => {
-  button.addEventListener('click', () => {
-    const level = (button as HTMLButtonElement).dataset.level;
-    if (level) {
-      startGame(level);
-    }
-  });
-});
+function backToMenu() {
+  if (currentGame) {
+    currentGame.stop();
+    currentGame = null;
+  }
+  ui.style.display = 'block';
+  canvas.style.display = 'none';
+}
+
+// @ts-ignore
+window.startGame = startGame;
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     currentGame?.handleInput();
   } else if (e.code === 'Escape') {
-    if (currentGame) {
-      currentGame.stop();
-      currentGame = null;
-      ui.classList.remove('hidden');
-      canvas.classList.add('hidden');
-    }
+    backToMenu();
   }
 });
 

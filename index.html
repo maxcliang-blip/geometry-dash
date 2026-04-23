@@ -9,15 +9,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;" />
     <title>Geometry Dash Clone</title>
-    <link rel="stylesheet" href="/src/style.css" />
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #222;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: white;
+        font-family: sans-serif;
+      }
+      canvas {
+        border: 2px solid white;
+        background-color: #000;
+        display: none;
+      }
+      #ui {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 20px;
+      }
+    </style>
   </head>
   <body>
     <div id="ui">
       <h1>Geometry Dash Clone</h1>
       <div id="level-select">
-        <button data-level="stereo-madness">Stereo Madness</button>
-        <button data-level="cant-let-go">Can't Let Go</button>
-        <button data-level="deadlocked">Deadlocked</button>
+        <button onclick="startGame('stereo-madness')" aria-label="Play Stereo Madness - Easy difficulty">Stereo Madness (Easy)</button>
+        <button onclick="startGame('cant-let-go')" aria-label="Play Can't Let Go - Hard difficulty">Can't Let Go (Hard)</button>
+        <button onclick="startGame('deadlocked')" aria-label="Play Deadlocked - Demon difficulty">Deadlocked (Demon)</button>
+      </div>
+      <div id="controls" style="margin-top: 20px; font-size: 0.9em; opacity: 0.8;">
+        <h3>Controls</h3>
+        <p>Space / Up Arrow: Jump</p>
+        <p>Esc: Back to Menu</p>
       </div>
     </div>
     <canvas id="gameCanvas" class="hidden"></canvas>
