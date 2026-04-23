@@ -33,8 +33,19 @@ function startGame(levelKey: string) {
   currentGame.start();
 }
 
-// @ts-ignore
-window.startGame = startGame;
+/**
+ * 🛡️ SECURITY: Use event listeners instead of inline 'onclick' handlers to support a
+ * strict Content Security Policy (CSP) that disallows 'unsafe-inline'.
+ */
+// Attach event listeners to level selection buttons
+document.querySelectorAll('#level-select button').forEach((button) => {
+  button.addEventListener('click', () => {
+    const levelKey = (button as HTMLButtonElement).dataset.level;
+    if (levelKey) {
+      startGame(levelKey);
+    }
+  });
+});
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
