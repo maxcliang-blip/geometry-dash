@@ -60,6 +60,10 @@ export class Game {
 
   private checkCollisions() {
     let groundedOnObject = false;
+    const playerLeft = this.player.x;
+    const playerRight = this.player.x + this.player.width;
+    const playerWidth = this.player.width;
+    const playerHeight = this.player.height;
 
     // Spatial pruning: only check objects within a reasonable range of the player
     const playerX = this.player.x;
@@ -75,12 +79,11 @@ export class Game {
       const playerLeft = this.player.x;
       const playerRight = this.player.x + this.player.width;
 
+      const playerTop = this.player.y - playerHeight;
       const objTop = -obj.y - obj.height;
-      const objBottom = -obj.y;
       const objLeft = obj.x;
-      const objRight = obj.x + obj.width;
 
-      if (this.rectIntersect(playerLeft, playerTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(playerLeft, playerTop, playerWidth, playerHeight, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;

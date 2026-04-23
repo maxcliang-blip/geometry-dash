@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self'; connect-src 'self' ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:*;" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 🛡️ SECURITY: Content Security Policy to prevent XSS by restricting resource loading to same-origin -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; object-src 'none';">
+    <!-- 🛡️ SECURITY: Prevent leaking sensitive info in Referer headers -->
+    <meta name="referrer" content="no-referrer">
     <title>Geometry Dash Clone</title>
     <style>
       body {
@@ -22,19 +27,39 @@
       }
       #ui {
         position: absolute;
-        top: 0;
-        left: 0;
-        padding: 20px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 30px;
+        background: rgba(0, 0, 0, 0.85);
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
       }
+      #level-select button {
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 6px;
+        background: #333;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: bold;
+      }
+      #level-select button:hover { background: #555; transform: translateY(-2px); }
+      #level-select button:active { transform: translateY(0); }
+      #level-select button:focus-visible { outline: 3px solid #00ffff; outline-offset: 2px; }
     </style>
   </head>
   <body>
-    <div id="ui">
-      <h1>Geometry Dash Clone</h1>
-      <div id="level-select">
-        <button onclick="startGame('stereo-madness')">Stereo Madness</button>
-        <button onclick="startGame('cant-let-go')">Can't Let Go</button>
-        <button onclick="startGame('deadlocked')">Deadlocked</button>
+    <div id="ui" role="dialog" aria-labelledby="title">
+      <h1 id="title">Geometry Dash Clone</h1>
+      <div id="level-select" role="group" aria-label="Level selection">
+        <button onclick="startGame('stereo-madness')" aria-label="Play Stereo Madness">Stereo Madness</button>
+        <button onclick="startGame('cant-let-go')" aria-label="Play Can't Let Go">Can't Let Go</button>
+        <button onclick="startGame('deadlocked')" aria-label="Play Deadlocked">Deadlocked</button>
       </div>
     </div>
     <canvas id="gameCanvas"></canvas>
