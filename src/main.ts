@@ -5,6 +5,7 @@ import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/dat
 let currentGame: Game | null = null;
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ui = document.getElementById('ui') as HTMLDivElement;
+const levelButtons = document.querySelectorAll('#level-select button');
 
 function startGame(levelKey: string) {
   let levelData: LevelData;
@@ -54,6 +55,22 @@ if (levelSelect) {
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     currentGame?.handleInput();
+  } else if (e.code === 'Escape') {
+    if (currentGame) {
+      currentGame.stop();
+      currentGame = null;
+      ui.style.display = 'block';
+      canvas.style.display = 'none';
+    }
+  }
+
+  if (e.code === 'Escape') {
+    if (currentGame) {
+      currentGame.stop();
+      currentGame = null;
+      ui.style.display = 'flex';
+      canvas.style.display = 'none';
+    }
   }
 });
 
@@ -62,6 +79,8 @@ window.addEventListener('mousedown', () => {
 });
 
 window.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  currentGame?.handleInput();
+  if (currentGame) {
+    e.preventDefault();
+    currentGame.handleInput();
+  }
 });
