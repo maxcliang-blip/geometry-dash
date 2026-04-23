@@ -19,6 +19,7 @@
       canvas {
         border: 2px solid white;
         background-color: #000;
+        display: none;
       }
       #ui {
         position: absolute;
@@ -32,9 +33,14 @@
     <div id="ui">
       <h1>Geometry Dash Clone</h1>
       <div id="level-select">
-        <button onclick="startGame('stereo-madness')">Stereo Madness</button>
-        <button onclick="startGame('cant-let-go')">Can't Let Go</button>
-        <button onclick="startGame('deadlocked')">Deadlocked</button>
+        <button onclick="startGame('stereo-madness')" aria-label="Play Stereo Madness - Easy difficulty">Stereo Madness (Easy)</button>
+        <button onclick="startGame('cant-let-go')" aria-label="Play Can't Let Go - Hard difficulty">Can't Let Go (Hard)</button>
+        <button onclick="startGame('deadlocked')" aria-label="Play Deadlocked - Demon difficulty">Deadlocked (Demon)</button>
+      </div>
+      <div id="controls" style="margin-top: 20px; font-size: 0.9em; opacity: 0.8;">
+        <h3>Controls</h3>
+        <p>Space / Up Arrow: Jump</p>
+        <p>Esc: Back to Menu</p>
       </div>
     </div>
     <canvas id="gameCanvas"></canvas>
