@@ -9,15 +9,57 @@
     <!-- 🛡️ SECURITY: Prevent leaking sensitive info in Referer headers -->
     <meta name="referrer" content="no-referrer">
     <title>Geometry Dash Clone</title>
-    <link rel="stylesheet" href="/src/style.css">
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #222;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: white;
+        font-family: sans-serif;
+      }
+      canvas {
+        border: 2px solid white;
+        background-color: #000;
+      }
+      #ui {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 30px;
+        background: rgba(0, 0, 0, 0.85);
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+      }
+      #level-select button {
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 6px;
+        background: #333;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: bold;
+      }
+      #level-select button:hover { background: #555; transform: translateY(-2px); }
+      #level-select button:active { transform: translateY(0); }
+      #level-select button:focus-visible { outline: 3px solid #00ffff; outline-offset: 2px; }
+    </style>
   </head>
   <body>
-    <div id="ui">
-      <h1>Geometry Dash Clone</h1>
-      <div id="level-select">
-        <button data-level="stereo-madness">Stereo Madness</button>
-        <button data-level="cant-let-go">Can't Let Go</button>
-        <button data-level="deadlocked">Deadlocked</button>
+    <div id="ui" role="dialog" aria-labelledby="title">
+      <h1 id="title">Geometry Dash Clone</h1>
+      <div id="level-select" role="group" aria-label="Level selection">
+        <button onclick="startGame('stereo-madness')" aria-label="Play Stereo Madness">Stereo Madness</button>
+        <button onclick="startGame('cant-let-go')" aria-label="Play Can't Let Go">Can't Let Go</button>
+        <button onclick="startGame('deadlocked')" aria-label="Play Deadlocked">Deadlocked</button>
       </div>
     </div>
     <canvas id="gameCanvas"></canvas>
