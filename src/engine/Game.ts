@@ -60,6 +60,10 @@ export class Game {
 
   private checkCollisions() {
     let groundedOnObject = false;
+    const playerLeft = this.player.x;
+    const playerRight = this.player.x + this.player.width;
+    const playerWidth = this.player.width;
+    const playerHeight = this.player.height;
 
     const playerLeft = this.player.x;
     const playerRight = this.player.x + this.player.width;
@@ -71,10 +75,9 @@ export class Game {
       // Skip objects that are too far left
       if (obj.x + obj.width < playerLeft) continue;
 
+      const playerTop = this.player.y - playerHeight;
       const objTop = -obj.y - obj.height;
-      const objBottom = -obj.y;
       const objLeft = obj.x;
-      const objRight = obj.x + obj.width;
 
       // Use current player Y as it might change during resolution (snapping to top of block)
       if (this.rectIntersect(this.player.x, this.player.y - this.player.height, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
@@ -138,19 +141,21 @@ export class Game {
       if (obj.x + obj.width < cameraX) continue;
 
       if (obj.type === 'block') {
-        ctx.fillStyle = '#eee';
-        ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        ctx.strokeStyle = '#000';
-        ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blocksPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
       } else if (obj.type === 'spike') {
-        ctx.fillStyle = '#ff4444';
-        ctx.beginPath();
-        ctx.moveTo(obj.x, -obj.y);
-        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
-        ctx.lineTo(obj.x + obj.width, -obj.y);
-        ctx.fill();
+        spikesPath.moveTo(obj.x, -obj.y);
+        spikesPath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikesPath.lineTo(obj.x + obj.width, -obj.y);
       }
     }
+
+    ctx.fillStyle = '#eee';
+    ctx.fill(blocksPath);
+    ctx.strokeStyle = '#000';
+    ctx.stroke(blocksPath);
+
+    ctx.fillStyle = '#ff4444';
+    ctx.fill(spikesPath);
 
     // Draw player
     ctx.save();
