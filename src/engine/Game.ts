@@ -107,12 +107,11 @@ export class Game {
       const playerLeft = this.player.x;
       const playerRight = this.player.x + this.player.width;
 
+      const playerTop = this.player.y - playerHeight;
       const objTop = -obj.y - obj.height;
-      const objBottom = -obj.y;
       const objLeft = obj.x;
-      const objRight = obj.x + obj.width;
 
-      if (this.rectIntersect(playerLeft, playerTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(playerLeft, playerTop, playerWidth, playerHeight, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -195,6 +194,14 @@ export class Game {
       ctx.fillStyle = '#ff4444';
       ctx.fill(spikePath);
     }
+
+    ctx.fillStyle = '#eee';
+    ctx.fill(blocksPath);
+    ctx.strokeStyle = '#000';
+    ctx.stroke(blocksPath);
+
+    ctx.fillStyle = '#ff4444';
+    ctx.fill(spikesPath);
 
     // Draw player
     ctx.save();
