@@ -46,6 +46,13 @@ document.querySelectorAll('.level-btn').forEach((button) => {
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     currentGame?.handleInput();
+  } else if (e.code === 'Escape') {
+    if (currentGame) {
+      currentGame.stop();
+      currentGame = null;
+      ui.style.display = 'block';
+      canvas.style.display = 'none';
+    }
   }
 });
 

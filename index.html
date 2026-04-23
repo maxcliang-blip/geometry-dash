@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 🛡️ SECURITY: Content Security Policy to prevent XSS by restricting resource loading to same-origin -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; object-src 'none';">
+    <!-- 🛡️ SECURITY: Prevent leaking sensitive info in Referer headers -->
+    <meta name="referrer" content="no-referrer">
     <title>Geometry Dash Clone</title>
   </head>
   <body>
