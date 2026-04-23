@@ -1,3 +1,4 @@
+import './style.css';
 import { Game } from './engine/Game';
 import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/data';
 
@@ -33,12 +34,11 @@ function startGame(levelKey: string) {
   currentGame.start();
 }
 
-// Attach event listeners to level buttons
-document.querySelectorAll('#level-select button').forEach((button) => {
+document.querySelectorAll('.level-btn').forEach((button) => {
   button.addEventListener('click', () => {
-    const levelKey = (button as HTMLButtonElement).dataset.level;
-    if (levelKey) {
-      startGame(levelKey);
+    const level = button.getAttribute('data-level');
+    if (level) {
+      startGame(level);
     }
   });
 });

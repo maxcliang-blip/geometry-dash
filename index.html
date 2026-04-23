@@ -2,84 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self'; connect-src 'self' ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:*;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- 🛡️ SECURITY: Content Security Policy to prevent XSS by restricting resource loading to same-origin -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; object-src 'none';">
     <!-- 🛡️ SECURITY: Prevent leaking sensitive info in Referer headers -->
     <meta name="referrer" content="no-referrer">
     <title>Geometry Dash Clone</title>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background-color: #222;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        color: white;
-        font-family: sans-serif;
-      }
-      canvas {
-        border: 2px solid white;
-        background-color: #000;
-      }
-      #ui {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 30px;
-        background: rgba(0, 0, 0, 0.85);
-        border-radius: 12px;
-        text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(4px);
-      }
-      #level-select {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      button {
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        background-color: #444;
-        color: white;
-        border: 2px solid #666;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-      }
-      button:hover {
-        background-color: #666;
-        border-color: #fff;
-        transform: translateY(-2px);
-      }
-      button:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 3px #00ffff;
-        border-color: #00ffff;
-      }
-      button:active {
-        transform: translateY(0);
-      }
-    </style>
   </head>
   <body>
     <div id="ui">
       <h1>Geometry Dash Clone</h1>
       <div id="level-select">
-        <button data-level="stereo-madness" aria-label="Play Stereo Madness - Easy difficulty">
-          Stereo Madness (Easy)
-        </button>
-        <button data-level="cant-let-go" aria-label="Play Can't Let Go - Hard difficulty">
-          Can't Let Go (Hard)
-        </button>
-        <button data-level="deadlocked" aria-label="Play Deadlocked - Demon difficulty">
-          Deadlocked (Demon)
-        </button>
+        <button class="level-btn" data-level="stereo-madness">Stereo Madness</button>
+        <button class="level-btn" data-level="cant-let-go">Can't Let Go</button>
+        <button class="level-btn" data-level="deadlocked">Deadlocked</button>
       </div>
     </div>
     <canvas id="gameCanvas"></canvas>
