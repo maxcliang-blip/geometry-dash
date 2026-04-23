@@ -28,12 +28,8 @@ function startGame(levelKey: string) {
     currentGame.stop();
   }
 
-  if (ui) {
-    ui.className = 'hidden';
-  }
-  if (canvas) {
-    canvas.className = 'visible';
-  }
+  ui.classList.add('hidden');
+  canvas.classList.remove('hidden');
 
   currentGame = new Game(canvas, levelData);
   currentGame.start();
@@ -59,17 +55,8 @@ window.addEventListener('keydown', (e) => {
     if (currentGame) {
       currentGame.stop();
       currentGame = null;
-      ui.style.display = 'block';
-      canvas.style.display = 'none';
-    }
-  }
-
-  if (e.code === 'Escape') {
-    if (currentGame) {
-      currentGame.stop();
-      currentGame = null;
-      ui.style.display = 'flex';
-      canvas.style.display = 'none';
+      ui.classList.remove('hidden');
+      canvas.classList.add('hidden');
     }
   }
 });
