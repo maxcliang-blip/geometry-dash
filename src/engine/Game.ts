@@ -9,6 +9,7 @@ export class Game {
   private animationFrameId: number | null = null;
   private cameraX: number = 0;
   private groundY: number;
+  private sortedObjects: GameObject[];
 
   constructor(canvas: HTMLCanvasElement, level: LevelData) {
     this.canvas = canvas;
@@ -20,6 +21,9 @@ export class Game {
       ...level,
       objects: [...level.objects].sort((a, b) => a.x - b.x)
     };
+
+    // Clone and sort objects by X-coordinate for efficient spatial pruning
+    this.sortedObjects = [...level.objects].sort((a, b) => a.x - b.x);
 
     this.canvas.width = 800;
     this.canvas.height = 450;
@@ -91,6 +95,19 @@ export class Game {
 
   private checkCollisions() {
     let groundedOnObject = false;
+    const playerLeft = this.player.x;
+    const playerRight = this.player.x + this.player.width;
+    const playerWidth = this.player.width;
+    const playerHeight = this.player.height;
+
+    // Spatial pruning: only check objects within a reasonable range of the player
+    const playerX = this.player.x;
+    const range = 100; // Look ahead and behind 100 pixels
+
+    for (const obj of this.sortedObjects) {
+      // Since objects are sorted by X, we can skip those far behind and break early for those far ahead
+      if (obj.x + obj.width < playerX - range) continue;
+      if (obj.x > playerX + this.player.width + range) break;
 
     // Spatial pruning: only check objects near the player
     const nearbyObjects = this.findInRange(this.player.x - 100, this.player.x + this.player.width + 100);
@@ -101,12 +118,11 @@ export class Game {
       const playerLeft = this.player.x;
       const playerRight = this.player.x + this.player.width;
 
+      const playerTop = this.player.y - playerHeight;
       const objTop = -obj.y - obj.height;
-      const objBottom = -obj.y;
       const objLeft = obj.x;
-      const objRight = obj.x + obj.width;
 
-      if (this.rectIntersect(playerLeft, playerTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(playerLeft, playerTop, playerWidth, playerHeight, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
