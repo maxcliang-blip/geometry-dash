@@ -9,21 +9,22 @@ export class Game {
   private animationFrameId: number | null = null;
   private cameraX: number = 0;
   private groundY: number;
-  private sortedObjects: GameObject[];
+  private maxObjWidth: number = 0;
 
   constructor(canvas: HTMLCanvasElement, level: LevelData) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.player = new Player();
-    // Copy and sort objects by X coordinate for efficient culling and pruning
-    // We use a copy to avoid mutating the original level data
+    // Optimization: Sort objects by x-coordinate to allow binary search for spatial pruning
     this.level = {
       ...level,
-      objects: [...level.objects].sort((a, b) => a.x - b.x)
+      objects: [...level.objects].sort((a, b) => a.x - b.x),
     };
 
-    // Clone and sort objects by X-coordinate for efficient spatial pruning
-    this.sortedObjects = [...level.objects].sort((a, b) => a.x - b.x);
+    // Track max width to ensure binary search includes wide objects starting before the viewport
+    for (const obj of this.level.objects) {
+      if (obj.width > this.maxObjWidth) this.maxObjWidth = obj.width;
+    }
 
     this.canvas.width = 800;
     this.canvas.height = 450;
@@ -63,56 +64,44 @@ export class Game {
     }
   }
 
-  private findInRange(minX: number, maxX: number): GameObject[] {
-    if (this.level.objects.length === 0) return [];
+  /**
+   * Performs O(log N) lookup to find objects in a specific X range.
+   * Uses a callback to avoid array allocations in hot loops.
+   */
+  private forEachInRange(minX: number, maxX: number, callback: (obj: GameObject) => void): void {
+    const objects = this.level.objects;
+    let start = 0;
+    let end = objects.length - 1;
+    let startIndex = 0;
 
-    let startIndex = -1;
+    // Binary search for first object that could overlap the range [minX, maxX]
+    // An object overlaps if obj.x + obj.width >= minX AND obj.x <= maxX.
+    // Since they are sorted by x, we find the first index where obj.x >= minX - maxObjWidth.
+    const searchX = minX - this.maxObjWidth;
 
-    // Binary search for the first object that could possibly collide (obj.x + obj.width >= minX)
-    let low = 0;
-    let high = this.level.objects.length - 1;
-    while (low <= high) {
-      let mid = Math.floor((low + high) / 2);
-      if (this.level.objects[mid].x + this.level.objects[mid].width >= minX) {
+    while (start <= end) {
+      const mid = (start + end) >> 1;
+      if (objects[mid].x >= searchX) {
         startIndex = mid;
-        high = mid - 1;
+        end = mid - 1;
       } else {
-        low = mid + 1;
+        start = mid + 1;
       }
     }
 
-    if (startIndex === -1) return [];
-
-    const result: GameObject[] = [];
-    for (let i = startIndex; i < this.level.objects.length; i++) {
-      const obj = this.level.objects[i];
-      // Since objects are sorted by X, we can stop as soon as an object starts after our range
+    for (let i = startIndex; i < objects.length; i++) {
+      const obj = objects[i];
       if (obj.x > maxX) break;
-      result.push(obj);
+      if (obj.x + obj.width >= minX) {
+        callback(obj);
+      }
     }
-    return result;
   }
 
   private checkCollisions() {
     let groundedOnObject = false;
-    const playerLeft = this.player.x;
-    const playerRight = this.player.x + this.player.width;
-    const playerWidth = this.player.width;
-    const playerHeight = this.player.height;
-
-    // Spatial pruning: only check objects within a reasonable range of the player
-    const playerX = this.player.x;
-    const range = 100; // Look ahead and behind 100 pixels
-
-    for (const obj of this.sortedObjects) {
-      // Since objects are sorted by X, we can skip those far behind and break early for those far ahead
-      if (obj.x + obj.width < playerX - range) continue;
-      if (obj.x > playerX + this.player.width + range) break;
-
-    // Spatial pruning: only check objects near the player
-    const nearbyObjects = this.findInRange(this.player.x - 100, this.player.x + this.player.width + 100);
-
-    for (const obj of nearbyObjects) {
+    // Optimization: Only check objects near the player
+    this.forEachInRange(this.player.x - 50, this.player.x + 100, (obj) => {
       const playerTop = this.player.y - this.player.height;
       const playerBottom = this.player.y;
       const playerLeft = this.player.x;
@@ -147,7 +136,7 @@ export class Game {
           }
         }
       }
-    }
+    });
 
     if (groundedOnObject) {
       this.player.isGrounded = true;
@@ -173,22 +162,37 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    // Frustum culling: only draw visible objects
-    const visibleObjects = this.findInRange(cameraX, cameraX + canvas.width);
+    // Optimization: Batch drawing calls using Path2D to reduce state changes and fill() calls
+    const blockPath = new Path2D();
+    const spikePath = new Path2D();
+    let hasBlocks = false;
+    let hasSpikes = false;
 
-    // Draw objects (batched)
-    const blocksPath = new Path2D();
-    const spikesPath = new Path2D();
-
-    for (const obj of visibleObjects) {
+    // Optimization: Only draw objects within the viewport (frustum culling)
+    this.forEachInRange(cameraX - 50, cameraX + canvas.width + 50, (obj) => {
       if (obj.type === 'block') {
-        blocksPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        hasBlocks = true;
       } else if (obj.type === 'spike') {
-        spikesPath.moveTo(obj.x, -obj.y);
-        spikesPath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
-        spikesPath.lineTo(obj.x + obj.width, -obj.y);
-        spikesPath.closePath();
+        spikePath.moveTo(obj.x, -obj.y);
+        spikePath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikePath.lineTo(obj.x + obj.width, -obj.y);
+        spikePath.closePath();
+        hasSpikes = true;
       }
+    });
+
+    if (hasBlocks) {
+      ctx.fillStyle = '#eee';
+      ctx.fill(blockPath);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1;
+      ctx.stroke(blockPath);
+    }
+
+    if (hasSpikes) {
+      ctx.fillStyle = '#ff4444';
+      ctx.fill(spikePath);
     }
 
     ctx.fillStyle = '#eee';

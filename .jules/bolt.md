@@ -1,5 +1,3 @@
-## 2025-05-14 - Performance Optimizations for Game Engine
-
-**Learning:** Sorting level objects by X-coordinate in the constructor allows for efficient O(log N) lookup of relevant objects for collision and rendering using binary search, significantly reducing the per-frame processing cost from O(N) to O(Viewport).
-
-**Action:** Always sort static level data by a spatial dimension (like X) during initialization to enable spatial partitioning/pruning. Use `Path2D` for batching similar shapes in Canvas to minimize context state changes and draw calls. Ensure binary search implementations handle edge cases where the range is outside the data set.
+## 2024-04-21 - Spatial Pruning and Path2D Batching
+**Learning:** Binary search for spatial pruning must account for object width. A simple search for `obj.x >= minX` can miss wide objects that start before the viewport but overlap it. Tracking `maxObjWidth` and adjusting the search range to `minX - maxObjWidth` ensures correctness. Additionally, callback-based iteration (`forEachInRange`) avoids array allocations in hot loops, reducing GC pressure.
+**Action:** Always consider object bounds (not just start position) when implementing spatial queries and favor callbacks over array returns for performance-critical iterators.
