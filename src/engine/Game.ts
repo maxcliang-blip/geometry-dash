@@ -15,7 +15,12 @@ export class Game {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.player = new Player();
-    this.level = level;
+    // Copy and sort objects by X coordinate for efficient culling and pruning
+    // We use a copy to avoid mutating the original level data
+    this.level = {
+      ...level,
+      objects: [...level.objects].sort((a, b) => a.x - b.x)
+    };
 
     // Clone and sort objects by X-coordinate for efficient spatial pruning
     this.sortedObjects = [...level.objects].sort((a, b) => a.x - b.x);
@@ -58,6 +63,36 @@ export class Game {
     }
   }
 
+  private findInRange(minX: number, maxX: number): GameObject[] {
+    if (this.level.objects.length === 0) return [];
+
+    let startIndex = -1;
+
+    // Binary search for the first object that could possibly collide (obj.x + obj.width >= minX)
+    let low = 0;
+    let high = this.level.objects.length - 1;
+    while (low <= high) {
+      let mid = Math.floor((low + high) / 2);
+      if (this.level.objects[mid].x + this.level.objects[mid].width >= minX) {
+        startIndex = mid;
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    }
+
+    if (startIndex === -1) return [];
+
+    const result: GameObject[] = [];
+    for (let i = startIndex; i < this.level.objects.length; i++) {
+      const obj = this.level.objects[i];
+      // Since objects are sorted by X, we can stop as soon as an object starts after our range
+      if (obj.x > maxX) break;
+      result.push(obj);
+    }
+    return result;
+  }
+
   private checkCollisions() {
     let groundedOnObject = false;
     const playerLeft = this.player.x;
@@ -74,6 +109,10 @@ export class Game {
       if (obj.x + obj.width < playerX - range) continue;
       if (obj.x > playerX + this.player.width + range) break;
 
+    // Spatial pruning: only check objects near the player
+    const nearbyObjects = this.findInRange(this.player.x - 100, this.player.x + this.player.width + 100);
+
+    for (const obj of nearbyObjects) {
       const playerTop = this.player.y - this.player.height;
       const playerBottom = this.player.y;
       const playerLeft = this.player.x;
@@ -134,32 +173,31 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    // Draw objects with frustum culling and batching
-    const blockBatch = new Path2D();
-    const spikeBatch = new Path2D();
+    // Frustum culling: only draw visible objects
+    const visibleObjects = this.findInRange(cameraX, cameraX + canvas.width);
 
-    for (const obj of this.sortedObjects) {
-      // Frustum culling: skip objects outside the viewport
-      if (obj.x + obj.width < cameraX) continue;
-      if (obj.x > cameraX + canvas.width) break;
+    // Draw objects (batched)
+    const blocksPath = new Path2D();
+    const spikesPath = new Path2D();
 
+    for (const obj of visibleObjects) {
       if (obj.type === 'block') {
-        blockBatch.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blocksPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
       } else if (obj.type === 'spike') {
-        spikeBatch.moveTo(obj.x, -obj.y);
-        spikeBatch.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
-        spikeBatch.lineTo(obj.x + obj.width, -obj.y);
+        spikesPath.moveTo(obj.x, -obj.y);
+        spikesPath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikesPath.lineTo(obj.x + obj.width, -obj.y);
+        spikesPath.closePath();
       }
     }
 
-    // Fill and stroke batches
     ctx.fillStyle = '#eee';
-    ctx.fill(blockBatch);
+    ctx.fill(blocksPath);
     ctx.strokeStyle = '#000';
-    ctx.stroke(blockBatch);
+    ctx.stroke(blocksPath);
 
     ctx.fillStyle = '#ff4444';
-    ctx.fill(spikeBatch);
+    ctx.fill(spikesPath);
 
     // Draw player
     ctx.save();
