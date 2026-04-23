@@ -9,12 +9,22 @@ export class Game {
   private animationFrameId: number | null = null;
   private cameraX: number = 0;
   private groundY: number;
+  private maxObjWidth: number = 0;
 
   constructor(canvas: HTMLCanvasElement, level: LevelData) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.player = new Player();
-    this.level = level;
+    // Optimization: Sort objects by x-coordinate to allow binary search for spatial pruning
+    this.level = {
+      ...level,
+      objects: [...level.objects].sort((a, b) => a.x - b.x),
+    };
+
+    // Track max width to ensure binary search includes wide objects starting before the viewport
+    for (const obj of this.level.objects) {
+      if (obj.width > this.maxObjWidth) this.maxObjWidth = obj.width;
+    }
 
     this.canvas.width = 800;
     this.canvas.height = 450;
@@ -54,21 +64,59 @@ export class Game {
     }
   }
 
+  /**
+   * Performs O(log N) lookup to find objects in a specific X range.
+   * Uses a callback to avoid array allocations in hot loops.
+   */
+  private forEachInRange(minX: number, maxX: number, callback: (obj: GameObject) => void): void {
+    const objects = this.level.objects;
+    let start = 0;
+    let end = objects.length - 1;
+    let startIndex = 0;
+
+    // Binary search for first object that could overlap the range [minX, maxX]
+    // An object overlaps if obj.x + obj.width >= minX AND obj.x <= maxX.
+    // Since they are sorted by x, we find the first index where obj.x >= minX - maxObjWidth.
+    const searchX = minX - this.maxObjWidth;
+
+    while (start <= end) {
+      const mid = (start + end) >> 1;
+      if (objects[mid].x >= searchX) {
+        startIndex = mid;
+        end = mid - 1;
+      } else {
+        start = mid + 1;
+      }
+    }
+
+    for (let i = startIndex; i < objects.length; i++) {
+      const obj = objects[i];
+      if (obj.x > maxX) break;
+      if (obj.x + obj.width >= minX) {
+        callback(obj);
+      }
+    }
+  }
+
   private checkCollisions() {
     let groundedOnObject = false;
 
+    const playerTop = this.player.y - this.player.height;
+    const playerBottom = this.player.y;
+    const playerLeft = this.player.x;
+    const playerRight = this.player.x + this.player.width;
+
     for (const obj of this.level.objects) {
-      const playerTop = this.player.y - this.player.height;
-      const playerBottom = this.player.y;
-      const playerLeft = this.player.x;
-      const playerRight = this.player.x + this.player.width;
+      // Spatial pruning: only check objects near the player
+      if (obj.x + obj.width < playerLeft - 30 || obj.x > playerRight + 30) {
+        continue;
+      }
 
+      const playerTop = this.player.y - playerHeight;
       const objTop = -obj.y - obj.height;
-      const objBottom = -obj.y;
       const objLeft = obj.x;
-      const objRight = obj.x + obj.width;
 
-      if (this.rectIntersect(playerLeft, playerTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(playerLeft, playerTop, playerWidth, playerHeight, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -93,7 +141,7 @@ export class Game {
           }
         }
       }
-    }
+    });
 
     if (groundedOnObject) {
       this.player.isGrounded = true;
@@ -121,20 +169,43 @@ export class Game {
 
     // Draw objects
     for (const obj of level.objects) {
-      if (obj.type === 'block') {
-        ctx.fillStyle = '#eee';
-        ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        ctx.strokeStyle = '#000';
-        ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-      } else if (obj.type === 'spike') {
-        ctx.fillStyle = '#ff4444';
-        ctx.beginPath();
-        ctx.moveTo(obj.x, -obj.y);
-        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
-        ctx.lineTo(obj.x + obj.width, -obj.y);
-        ctx.fill();
+      // Viewport culling: only draw objects visible on screen
+      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) {
+        continue;
       }
+
+      if (obj.type === 'block') {
+        blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        hasBlocks = true;
+      } else if (obj.type === 'spike') {
+        spikePath.moveTo(obj.x, -obj.y);
+        spikePath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikePath.lineTo(obj.x + obj.width, -obj.y);
+        spikePath.closePath();
+        hasSpikes = true;
+      }
+    });
+
+    if (hasBlocks) {
+      ctx.fillStyle = '#eee';
+      ctx.fill(blockPath);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1;
+      ctx.stroke(blockPath);
     }
+
+    if (hasSpikes) {
+      ctx.fillStyle = '#ff4444';
+      ctx.fill(spikePath);
+    }
+
+    ctx.fillStyle = '#eee';
+    ctx.fill(blocksPath);
+    ctx.strokeStyle = '#000';
+    ctx.stroke(blocksPath);
+
+    ctx.fillStyle = '#ff4444';
+    ctx.fill(spikesPath);
 
     // Draw player
     ctx.save();

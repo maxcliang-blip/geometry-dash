@@ -1,9 +1,11 @@
+import './style.css';
 import { Game } from './engine/Game';
 import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/data';
 
 let currentGame: Game | null = null;
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ui = document.getElementById('ui') as HTMLDivElement;
+const levelButtons = document.querySelectorAll('#level-select button');
 
 function startGame(levelKey: string) {
   let levelData: LevelData;
@@ -26,8 +28,8 @@ function startGame(levelKey: string) {
     currentGame.stop();
   }
 
-  ui.style.display = 'none';
-  canvas.style.display = 'block';
+  ui.classList.add('hidden');
+  canvas.classList.remove('hidden');
 
   currentGame = new Game(canvas, levelData);
   currentGame.start();
@@ -58,6 +60,8 @@ window.addEventListener('mousedown', () => {
 });
 
 window.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  currentGame?.handleInput();
+  if (currentGame) {
+    e.preventDefault();
+    currentGame.handleInput();
+  }
 });
