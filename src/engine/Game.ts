@@ -100,12 +100,17 @@ export class Game {
 
   private checkCollisions() {
     let groundedOnObject = false;
-    // Optimization: Only check objects near the player
-    this.forEachInRange(this.player.x - 50, this.player.x + 100, (obj) => {
-      const playerTop = this.player.y - this.player.height;
-      const playerBottom = this.player.y;
-      const playerLeft = this.player.x;
-      const playerRight = this.player.x + this.player.width;
+
+    const playerTop = this.player.y - this.player.height;
+    const playerBottom = this.player.y;
+    const playerLeft = this.player.x;
+    const playerRight = this.player.x + this.player.width;
+
+    for (const obj of this.level.objects) {
+      // Spatial pruning: only check objects near the player
+      if (obj.x + obj.width < playerLeft - 30 || obj.x > playerRight + 30) {
+        continue;
+      }
 
       const playerTop = this.player.y - playerHeight;
       const objTop = -obj.y - obj.height;
@@ -162,14 +167,13 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    // Optimization: Batch drawing calls using Path2D to reduce state changes and fill() calls
-    const blockPath = new Path2D();
-    const spikePath = new Path2D();
-    let hasBlocks = false;
-    let hasSpikes = false;
+    // Draw objects
+    for (const obj of level.objects) {
+      // Viewport culling: only draw objects visible on screen
+      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) {
+        continue;
+      }
 
-    // Optimization: Only draw objects within the viewport (frustum culling)
-    this.forEachInRange(cameraX - 50, cameraX + canvas.width + 50, (obj) => {
       if (obj.type === 'block') {
         blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
         hasBlocks = true;
