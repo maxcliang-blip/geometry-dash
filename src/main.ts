@@ -35,18 +35,15 @@ function startGame(levelKey: string) {
   currentGame.start();
 }
 
-// Add event listeners for level selection buttons
-const levelSelect = document.getElementById('level-select');
-if (levelSelect) {
-  levelSelect.querySelectorAll('button').forEach((button) => {
-    button.addEventListener('click', () => {
-      const level = (button as HTMLButtonElement).dataset.level;
-      if (level) {
-        startGame(level);
-      }
-    });
+// Attach event listeners to level select buttons
+document.querySelectorAll('#level-select button').forEach((button) => {
+  button.addEventListener('click', () => {
+    const level = (button as HTMLButtonElement).dataset.level;
+    if (level) {
+      startGame(level);
+    }
   });
-}
+});
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {

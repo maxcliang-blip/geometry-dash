@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;" />
     <title>Geometry Dash Clone</title>
@@ -12,16 +15,9 @@
     <div id="ui">
       <h1>Geometry Dash Clone</h1>
       <div id="level-select">
-        <button onclick="startGame('stereo-madness')">Stereo Madness (Easy)</button>
-        <button onclick="startGame('cant-let-go')">Can't Let Go (Hard)</button>
-        <button onclick="startGame('deadlocked')">Deadlocked (Demon)</button>
-      </div>
-      <div class="controls-hint">
-        <h3>Controls</h3>
-        <ul>
-          <li><strong>Space</strong> or <strong>Up Arrow</strong>: Jump</li>
-          <li><strong>Escape</strong>: Return to Menu</li>
-        </ul>
+        <button data-level="stereo-madness">Stereo Madness</button>
+        <button data-level="cant-let-go">Can't Let Go</button>
+        <button data-level="deadlocked">Deadlocked</button>
       </div>
     </div>
     <canvas id="gameCanvas" class="hidden"></canvas>
