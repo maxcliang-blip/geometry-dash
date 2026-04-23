@@ -1,3 +1,4 @@
+import './style.css';
 import { Game } from './engine/Game';
 import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/data';
 
@@ -47,6 +48,13 @@ levelButtons.forEach((button) => {
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     currentGame?.handleInput();
+  } else if (e.code === 'Escape') {
+    if (currentGame) {
+      currentGame.stop();
+      currentGame = null;
+      ui.style.display = 'block';
+      canvas.style.display = 'none';
+    }
   }
 
   if (e.code === 'Escape') {
