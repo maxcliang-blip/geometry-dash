@@ -56,19 +56,21 @@ export class Game {
 
   private checkCollisions() {
     let groundedOnObject = false;
+    const playerLeft = this.player.x;
+    const playerRight = this.player.x + this.player.width;
+    const playerWidth = this.player.width;
+    const playerHeight = this.player.height;
 
     for (const obj of this.level.objects) {
-      const playerTop = this.player.y - this.player.height;
-      const playerBottom = this.player.y;
-      const playerLeft = this.player.x;
-      const playerRight = this.player.x + this.player.width;
+      // Spatial pruning: only check objects near the player
+      // We can use hoisted playerLeft/Right because player.x doesn't change during collision resolution
+      if (obj.x + obj.width < playerLeft - 30 || obj.x > playerRight + 30) continue;
 
+      const playerTop = this.player.y - playerHeight;
       const objTop = -obj.y - obj.height;
-      const objBottom = -obj.y;
       const objLeft = obj.x;
-      const objRight = obj.x + obj.width;
 
-      if (this.rectIntersect(playerLeft, playerTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(playerLeft, playerTop, playerWidth, playerHeight, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -119,22 +121,31 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    // Draw objects
+    // Draw objects - Optimized with viewport culling and Path2D batching
+    const blocksPath = new Path2D();
+    const spikesPath = new Path2D();
+    const viewportRight = cameraX + canvas.width;
+
     for (const obj of level.objects) {
+      // Viewport culling
+      if (obj.x + obj.width < cameraX || obj.x > viewportRight) continue;
+
       if (obj.type === 'block') {
-        ctx.fillStyle = '#eee';
-        ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        ctx.strokeStyle = '#000';
-        ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blocksPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
       } else if (obj.type === 'spike') {
-        ctx.fillStyle = '#ff4444';
-        ctx.beginPath();
-        ctx.moveTo(obj.x, -obj.y);
-        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
-        ctx.lineTo(obj.x + obj.width, -obj.y);
-        ctx.fill();
+        spikesPath.moveTo(obj.x, -obj.y);
+        spikesPath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikesPath.lineTo(obj.x + obj.width, -obj.y);
       }
     }
+
+    ctx.fillStyle = '#eee';
+    ctx.fill(blocksPath);
+    ctx.strokeStyle = '#000';
+    ctx.stroke(blocksPath);
+
+    ctx.fillStyle = '#ff4444';
+    ctx.fill(spikesPath);
 
     // Draw player
     ctx.save();
