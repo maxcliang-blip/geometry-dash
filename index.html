@@ -37,29 +37,49 @@
         border: 1px solid rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(4px);
       }
-      #level-select button {
-        padding: 10px 20px;
-        margin: 5px;
-        border: none;
-        border-radius: 6px;
-        background: #333;
-        color: white;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-weight: bold;
+      #level-select {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
       }
-      #level-select button:hover { background: #555; transform: translateY(-2px); }
-      #level-select button:active { transform: translateY(0); }
-      #level-select button:focus-visible { outline: 3px solid #00ffff; outline-offset: 2px; }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #444;
+        color: white;
+        border: 2px solid #666;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+      button:hover {
+        background-color: #666;
+        border-color: #fff;
+        transform: translateY(-2px);
+      }
+      button:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px #00ffff;
+        border-color: #00ffff;
+      }
+      button:active {
+        transform: translateY(0);
+      }
     </style>
   </head>
   <body>
-    <div id="ui" role="dialog" aria-labelledby="title">
-      <h1 id="title">Geometry Dash Clone</h1>
-      <div id="level-select" role="group" aria-label="Level selection">
-        <button onclick="startGame('stereo-madness')" aria-label="Play Stereo Madness">Stereo Madness</button>
-        <button onclick="startGame('cant-let-go')" aria-label="Play Can't Let Go">Can't Let Go</button>
-        <button onclick="startGame('deadlocked')" aria-label="Play Deadlocked">Deadlocked</button>
+    <div id="ui">
+      <h1>Geometry Dash Clone</h1>
+      <div id="level-select">
+        <button data-level="stereo-madness" aria-label="Play Stereo Madness - Easy difficulty">
+          Stereo Madness (Easy)
+        </button>
+        <button data-level="cant-let-go" aria-label="Play Can't Let Go - Hard difficulty">
+          Can't Let Go (Hard)
+        </button>
+        <button data-level="deadlocked" aria-label="Play Deadlocked - Demon difficulty">
+          Deadlocked (Demon)
+        </button>
       </div>
     </div>
     <canvas id="gameCanvas"></canvas>
