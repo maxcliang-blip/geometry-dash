@@ -1,3 +1,3 @@
-## 2025-05-15 - [Collision Loop Hoisting]
-**Learning:** In collision detection loops, avoid hoisting properties (like `player.y`) that are modified within the loop (e.g., during collision resolution). If a property changes, subsequent iterations in the same frame will use stale data, leading to tunneling or missed collisions.
-**Action:** Always identify which properties are mutable within a loop before hoisting them for optimization. Recalculate dependent values (like bounds) inside the loop if the base properties change.
+## 2025-05-14 - Optimized Game Engine Performance
+**Learning:** For HTML5 Canvas games, batching draw calls using Path2D and implementing horizontal spatial pruning on sorted object lists significantly reduces CPU overhead from O(N) to O(Viewport).
+**Action:** Always sort level objects by X-coordinate in the constructor to enable efficient culling and pruning in the game loop. Use Path2D for batching objects of the same type and style.
