@@ -7,6 +7,7 @@
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;" />
     <title>Geometry Dash Clone</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
@@ -19,7 +20,7 @@
         <button data-level="deadlocked">Deadlocked</button>
       </div>
     </div>
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" class="hidden"></canvas>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
