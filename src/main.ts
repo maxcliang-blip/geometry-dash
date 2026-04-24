@@ -40,12 +40,18 @@ function backToMenu() {
     currentGame.stop();
     currentGame = null;
   }
-  ui.style.display = 'block';
-  canvas.style.display = 'none';
+  ui.classList.remove('hidden');
+  canvas.classList.add('hidden');
 }
 
-// @ts-ignore
-window.startGame = startGame;
+levelButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const levelKey = button.getAttribute('data-level');
+    if (levelKey) {
+      startGame(levelKey);
+    }
+  });
+});
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
