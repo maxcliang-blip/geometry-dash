@@ -75,8 +75,6 @@ export class Game {
     let startIndex = 0;
 
     // Binary search for first object that could overlap the range [minX, maxX]
-    // An object overlaps if obj.x + obj.width >= minX AND obj.x <= maxX.
-    // Since they are sorted by x, we find the first index where obj.x >= minX - maxObjWidth.
     const searchX = minX - this.maxObjWidth;
 
     while (start <= end) {
@@ -101,17 +99,13 @@ export class Game {
   private checkCollisions() {
     let groundedOnObject = false;
 
-    const playerTop = this.player.y - this.player.height;
-    const playerBottom = this.player.y;
     const playerLeft = this.player.x;
     const playerRight = this.player.x + this.player.width;
+    const playerWidth = this.player.width;
+    const playerHeight = this.player.height;
 
-    for (const obj of this.level.objects) {
-      // Spatial pruning: only check objects near the player
-      if (obj.x + obj.width < playerLeft - 30 || obj.x > playerRight + 30) {
-        continue;
-      }
-
+    this.forEachInRange(playerLeft - 30, playerRight + 30, (obj) => {
+      // playerTop must be recalculated inside as player.y can change during resolution
       const playerTop = this.player.y - playerHeight;
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
@@ -119,7 +113,6 @@ export class Game {
       if (this.rectIntersect(playerLeft, playerTop, playerWidth, playerHeight, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
-          return;
         } else if (obj.type === 'block') {
           // Check if we are landing on top of the block
           const prevPlayerBottom = this.player.y - this.player.vy;
@@ -136,7 +129,6 @@ export class Game {
             } else {
               // Hit the side or bottom of a block
               this.player.isDead = true;
-              return;
             }
           }
         }
@@ -167,13 +159,13 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    // Draw objects
-    for (const obj of level.objects) {
-      // Viewport culling: only draw objects visible on screen
-      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) {
-        continue;
-      }
+    const blockPath = new Path2D();
+    const spikePath = new Path2D();
+    let hasBlocks = false;
+    let hasSpikes = false;
 
+    // Draw objects using viewport culling and Path2D batching
+    this.forEachInRange(cameraX, cameraX + canvas.width, (obj) => {
       if (obj.type === 'block') {
         blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
         hasBlocks = true;
@@ -198,14 +190,6 @@ export class Game {
       ctx.fillStyle = '#ff4444';
       ctx.fill(spikePath);
     }
-
-    ctx.fillStyle = '#eee';
-    ctx.fill(blocksPath);
-    ctx.strokeStyle = '#000';
-    ctx.stroke(blocksPath);
-
-    ctx.fillStyle = '#ff4444';
-    ctx.fill(spikesPath);
 
     // Draw player
     ctx.save();
