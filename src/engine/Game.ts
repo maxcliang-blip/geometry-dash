@@ -26,8 +26,7 @@ export class Game {
     // And calculate total level length for progress bar
     for (const obj of this.level.objects) {
       if (obj.width > this.maxObjWidth) this.maxObjWidth = obj.width;
-      const endX = obj.x + obj.width;
-      if (endX > this.levelLength) this.levelLength = endX;
+      if (obj.x + obj.width > this.levelLength) this.levelLength = obj.x + obj.width;
     }
 
     this.canvas.width = 800;
@@ -68,98 +67,28 @@ export class Game {
     }
   }
 
-  /**
-   * Performs O(log N) lookup to find objects in a specific X range.
-   * Uses a callback to avoid array allocations in hot loops.
-   * Returns true if the iteration was stopped early by the callback returning true.
-   */
-  private forEachInRange(minX: number, maxX: number, callback: (obj: GameObject) => boolean | void): void {
-    const objects = this.level.objects;
-    let start = 0;
-    let end = objects.length - 1;
-    let startIndex = 0;
-
-    // Binary search for first object that could overlap the range [minX, maxX]
-    const searchX = minX - this.maxObjWidth;
-
-    while (start <= end) {
-      const mid = (start + end) >> 1;
-      if (objects[mid].x >= searchX) {
-        startIndex = mid;
-        end = mid - 1;
-      } else {
-        start = mid + 1;
-      }
-    }
-
-    for (let i = startIndex; i < objects.length; i++) {
-      const obj = objects[i];
-      if (obj.x > maxX) break;
-      if (obj.x + obj.width >= minX) {
-        if (callback(obj) === true) break;
-      }
-    }
-  }
-
   private checkCollisions() {
     let groundedOnObject = false;
+    const pLeft = this.player.x;
+    const pRight = this.player.x + this.player.width;
+    const pTop = this.player.y - this.player.height;
 
-    const playerWidth = this.player.width;
-    const playerHeight = this.player.height;
-    const playerLeft = this.player.x;
-    const playerRight = this.player.x + playerWidth;
+    for (const obj of this.level.objects) {
+      if (obj.x + obj.width < pLeft - 30 || obj.x > pRight + 30) continue;
 
-    // Optimized: Use forEachInRange for spatial pruning (O(log N) lookup)
-    this.forEachInRange(playerLeft - 30, playerRight + 30, (obj) => {
-      if (this.player.isDead) return true;
-
-      // Note: playerTop must be recalculated within the loop because player.y
-      // may be modified by collision resolution (e.g., landing on a block).
-      const playerTop = this.player.y - playerHeight;
       const objTop = -obj.y - obj.height;
-      const objLeft = obj.x;
-
-      if (
-        this.rectIntersect(
-          playerLeft,
-          playerTop,
-          this.player.width,
-          this.player.height,
-          objLeft,
-          objTop,
-          obj.width,
-          obj.height
-        )
-      ) {
-        if (obj.type === 'spike') {
-          this.player.isDead = true;
-          return true;
-        } else if (obj.type === 'block') {
-          // Check if we are landing on top of the block
-          const prevPlayerBottom = this.player.y - this.player.vy;
-          // If we are above the block or falling into it from above
-          if (this.player.vy >= 0 && prevPlayerBottom <= objTop + 1) {
-            this.player.y = objTop;
-            this.player.vy = 0;
-            groundedOnObject = true;
-          } else {
-            // Check if it's just a floor-level block we are sliding into
-            if (obj.y === 0 && this.player.y === 0) {
-              // Sliding on floor, ignore side collision with ground-level block
-              groundedOnObject = true;
-            } else {
-              // Hit the side or bottom of a block
-              this.player.isDead = true;
-              return true;
-            }
-          }
+      if (this.rectIntersect(pLeft, pTop, this.player.width, this.player.height, obj.x, objTop, obj.width, obj.height)) {
+        if (obj.type === 'spike') { this.player.isDead = true; return; }
+        if (obj.type === 'block') {
+          const prevPBottom = this.player.y - this.player.vy;
+          if (this.player.vy >= 0 && prevPBottom <= objTop + 2) {
+            this.player.y = objTop; this.player.vy = 0; groundedOnObject = true;
+          } else if (obj.y === 0 && this.player.y === 0) { groundedOnObject = true; }
+          else { this.player.isDead = true; return; }
         }
       }
     }
-
-    if (groundedOnObject) {
-      this.player.isGrounded = true;
-    }
+    if (groundedOnObject) this.player.isGrounded = true;
   }
 
   private rectIntersect(x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number) {
@@ -181,36 +110,16 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    // Optimized rendering: Use Path2D for batching and forEachInRange for viewport culling
-    const blockPath = new Path2D();
-    const spikePath = new Path2D();
-    let hasBlocks = false;
-    let hasSpikes = false;
-
-    this.forEachInRange(cameraX, cameraX + canvas.width, (obj) => {
+    for (const obj of level.objects) {
+      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) continue;
       if (obj.type === 'block') {
-        blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        hasBlocks = true;
+        ctx.fillStyle = '#eee'; ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        ctx.strokeStyle = '#000'; ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
       } else if (obj.type === 'spike') {
-        spikePath.moveTo(obj.x, -obj.y);
-        spikePath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
-        spikePath.lineTo(obj.x + obj.width, -obj.y);
-        spikePath.closePath();
-        hasSpikes = true;
+        ctx.fillStyle = '#ff4444'; ctx.beginPath(); ctx.moveTo(obj.x, -obj.y);
+        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height); ctx.lineTo(obj.x + obj.width, -obj.y);
+        ctx.fill();
       }
-    }
-
-    if (hasBlocks) {
-      ctx.fillStyle = '#eee';
-      ctx.fill(blockPath);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 1;
-      ctx.stroke(blockPath);
-    }
-
-    if (hasSpikes) {
-      ctx.fillStyle = '#ff4444';
-      ctx.fill(spikePath);
     }
 
     // Draw player
@@ -240,11 +149,34 @@ export class Game {
     ctx.fillStyle = '#00ffff';
     ctx.fillRect(barX, barY, barWidth * progress, barHeight);
 
-    // Percentage text
+    ctx.restore();
+
+    // Progress bar (Overlay, should be drawn last after coordinate restores)
+    this.drawProgressBar();
+  }
+
+  private drawProgressBar() {
+    const { ctx, canvas, player, levelLength } = this;
+    const padding = 10;
+    const barWidth = canvas.width - padding * 2;
+    const barHeight = 6;
+    const progress = Math.min(1, Math.max(0, player.x / levelLength));
+
+    ctx.save();
+    // Container
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.fillRect(padding, padding, barWidth, barHeight);
+
+    // Progress
     ctx.fillStyle = '#fff';
-    ctx.font = '12px Arial';
+    ctx.fillRect(padding, padding, barWidth * progress, barHeight);
+
+    // Text
+    ctx.fillStyle = '#fff';
+    ctx.font = '12px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`${Math.floor(progress * 100)}%`, canvas.width / 2, barY + barHeight + 12);
+    ctx.fillText(`${Math.floor(progress * 100)}%`, canvas.width / 2, padding + barHeight + 14);
+    ctx.restore();
   }
 
   handleInput() {

@@ -6,7 +6,7 @@ let currentGame: Game | null = null;
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ui = document.getElementById('ui') as HTMLDivElement;
 
-function startGame(levelKey: string) {
+function startGame(levelKey: string | null) {
   let levelData: LevelData;
 
   switch (levelKey) {
@@ -46,9 +46,7 @@ function backToMenu() {
 levelButtons.forEach((button) => {
   button.addEventListener('click', () => {
     const levelKey = button.getAttribute('data-level');
-    if (levelKey) {
-      startGame(levelKey);
-    }
+    startGame(levelKey);
   });
 });
 
