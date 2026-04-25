@@ -71,8 +71,9 @@ export class Game {
   /**
    * Performs O(log N) lookup to find objects in a specific X range.
    * Uses a callback to avoid array allocations in hot loops.
+   * Returns true if the iteration was stopped early by the callback returning true.
    */
-  private forEachInRange(minX: number, maxX: number, callback: (obj: GameObject) => void): void {
+  private forEachInRange(minX: number, maxX: number, callback: (obj: GameObject) => boolean | void): void {
     const objects = this.level.objects;
     let start = 0;
     let end = objects.length - 1;
@@ -95,7 +96,7 @@ export class Game {
       const obj = objects[i];
       if (obj.x > maxX) break;
       if (obj.x + obj.width >= minX) {
-        callback(obj);
+        if (callback(obj) === true) break;
       }
     }
   }
@@ -103,20 +104,18 @@ export class Game {
   private checkCollisions() {
     let groundedOnObject = false;
 
-    const playerBottom = this.player.y;
-    const playerLeft = this.player.x;
-    const playerRight = this.player.x + this.player.width;
     const playerWidth = this.player.width;
     const playerHeight = this.player.height;
+    const playerLeft = this.player.x;
+    const playerRight = this.player.x + playerWidth;
 
-    for (const obj of this.level.objects) {
-      // Spatial pruning: only check objects near the player
-      if (obj.x + obj.width < playerLeft - 30 || obj.x > playerRight + 30) {
-        continue;
-      }
+    // Optimized: Use forEachInRange for spatial pruning (O(log N) lookup)
+    this.forEachInRange(playerLeft - 30, playerRight + 30, (obj) => {
+      if (this.player.isDead) return true;
 
-      // Recalculate playerTop inside the loop as this.player.y can change during collision resolution
-      const playerTop = this.player.y - this.player.height;
+      // Note: playerTop must be recalculated within the loop because player.y
+      // may be modified by collision resolution (e.g., landing on a block).
+      const playerTop = this.player.y - playerHeight;
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
@@ -134,6 +133,7 @@ export class Game {
       ) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
+          return true;
         } else if (obj.type === 'block') {
           // Check if we are landing on top of the block
           const prevPlayerBottom = this.player.y - this.player.vy;
@@ -150,6 +150,7 @@ export class Game {
             } else {
               // Hit the side or bottom of a block
               this.player.isDead = true;
+              return true;
             }
           }
         }
@@ -180,19 +181,12 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
+    // Optimized rendering: Use Path2D for batching and forEachInRange for viewport culling
     const blockPath = new Path2D();
     const spikePath = new Path2D();
     let hasBlocks = false;
     let hasSpikes = false;
 
-    // Draw objects
-    for (const obj of level.objects) {
-      // Viewport culling: only draw objects visible on screen
-      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) {
-        continue;
-      }
-
-    // Draw objects using viewport culling and Path2D batching
     this.forEachInRange(cameraX, cameraX + canvas.width, (obj) => {
       if (obj.type === 'block') {
         blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
