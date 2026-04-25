@@ -79,8 +79,6 @@ export class Game {
     let startIndex = 0;
 
     // Binary search for first object that could overlap the range [minX, maxX]
-    // An object overlaps if obj.x + obj.width >= minX AND obj.x <= maxX.
-    // Since they are sorted by x, we find the first index where obj.x >= minX - maxObjWidth.
     const searchX = minX - this.maxObjWidth;
 
     while (start <= end) {
@@ -108,6 +106,8 @@ export class Game {
     const playerBottom = this.player.y;
     const playerLeft = this.player.x;
     const playerRight = this.player.x + this.player.width;
+    const playerWidth = this.player.width;
+    const playerHeight = this.player.height;
 
     for (const obj of this.level.objects) {
       // Spatial pruning: only check objects near the player
@@ -134,7 +134,6 @@ export class Game {
       ) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
-          return;
         } else if (obj.type === 'block') {
           // Check if we are landing on top of the block
           const prevPlayerBottom = this.player.y - this.player.vy;
@@ -151,7 +150,6 @@ export class Game {
             } else {
               // Hit the side or bottom of a block
               this.player.isDead = true;
-              return;
             }
           }
         }
@@ -194,6 +192,8 @@ export class Game {
         continue;
       }
 
+    // Draw objects using viewport culling and Path2D batching
+    this.forEachInRange(cameraX, cameraX + canvas.width, (obj) => {
       if (obj.type === 'block') {
         blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
         hasBlocks = true;
