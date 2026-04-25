@@ -76,17 +76,39 @@ export class Game {
     for (const obj of this.level.objects) {
       if (obj.x + obj.width < pLeft - 30 || obj.x > pRight + 30) continue;
 
+      const pTop = this.player.y - this.player.height;
       const objTop = -obj.y - obj.height;
-      if (this.rectIntersect(pLeft, pTop, this.player.width, this.player.height, obj.x, objTop, obj.width, obj.height)) {
-        if (obj.type === 'spike') { this.player.isDead = true; return; }
-        if (obj.type === 'block') {
-          const prevPBottom = this.player.y - this.player.vy;
-          if (this.player.vy >= 0 && prevPBottom <= objTop + 2) {
-            this.player.y = objTop; this.player.vy = 0; groundedOnObject = true;
-          } else if (obj.y === 0 && this.player.y === 0) { groundedOnObject = true; }
-          else { this.player.isDead = true; return; }
+      const objLeft = obj.x;
+
+      if (this.rectIntersect(playerLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+        if (obj.type === 'spike') {
+          this.player.isDead = true;
+          return;
+        } else if (obj.type === 'block') {
+          // Check if we are landing on top of the block
+          const prevPlayerBottom = this.player.y - this.player.vy;
+          // If we are above the block or falling into it from above
+          if (this.player.vy >= 0 && prevPlayerBottom <= objTop + 1) {
+            this.player.y = objTop;
+            this.player.vy = 0;
+            groundedOnObject = true;
+          } else {
+            // Check if it's just a floor-level block we are sliding into
+            if (obj.y === 0 && this.player.y === 0) {
+              // Sliding on floor, ignore side collision with ground-level block
+              groundedOnObject = true;
+            } else {
+              // Hit the side or bottom of a block
+              this.player.isDead = true;
+              return;
+            }
+          }
         }
       }
+    }
+
+    if (groundedOnObject) {
+      this.player.isGrounded = true;
     }
     if (groundedOnObject) this.player.isGrounded = true;
   }
@@ -110,6 +132,12 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
+    const blockPath = new Path2D();
+    const spikePath = new Path2D();
+    let hasBlocks = false;
+    let hasSpikes = false;
+
+    // Draw objects
     for (const obj of level.objects) {
       if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) continue;
       if (obj.type === 'block') {
@@ -120,6 +148,19 @@ export class Game {
         ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height); ctx.lineTo(obj.x + obj.width, -obj.y);
         ctx.fill();
       }
+    }
+
+    if (hasBlocks) {
+      ctx.fillStyle = '#eee';
+      ctx.fill(blockPath);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1;
+      ctx.stroke(blockPath);
+    }
+
+    if (hasSpikes) {
+      ctx.fillStyle = '#ff4444';
+      ctx.fill(spikePath);
     }
 
     // Draw player

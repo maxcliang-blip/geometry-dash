@@ -1,4 +1,3 @@
-import './style.css';
 import { Game } from './engine/Game';
 import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/data';
 
@@ -43,10 +42,13 @@ function backToMenu() {
   canvas.classList.add('hidden');
 }
 
+// Add event listeners to level select buttons
 levelButtons.forEach((button) => {
   button.addEventListener('click', () => {
-    const levelKey = button.getAttribute('data-level');
-    startGame(levelKey);
+    const level = button.getAttribute('data-level');
+    if (level) {
+      startGame(level);
+    }
   });
 });
 
