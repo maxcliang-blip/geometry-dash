@@ -5,7 +5,7 @@ import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/dat
 let currentGame: Game | null = null;
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ui = document.getElementById('ui') as HTMLDivElement;
-const levelButtons = document.querySelectorAll('#level-select button');
+const levelSelect = document.getElementById('level-select') as HTMLElement;
 
 function startGame(levelKey: string) {
   let levelData: LevelData;
@@ -28,6 +28,7 @@ function startGame(levelKey: string) {
     currentGame.stop();
   }
 
+  // Use classes for visibility for CSP compliance and performance
   ui.classList.add('hidden');
   canvas.classList.remove('hidden');
 
@@ -40,12 +41,18 @@ function backToMenu() {
     currentGame.stop();
     currentGame = null;
   }
-  ui.style.display = 'block';
-  canvas.style.display = 'none';
+  ui.classList.remove('hidden');
+  canvas.classList.add('hidden');
 }
 
-// @ts-ignore
-window.startGame = startGame;
+// Optimization: Event delegation for level selection
+levelSelect.addEventListener('click', (e) => {
+  const target = e.target as HTMLElement;
+  const levelKey = target.getAttribute('data-level');
+  if (levelKey) {
+    startGame(levelKey);
+  }
+});
 
 window.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
@@ -64,4 +71,4 @@ window.addEventListener('touchstart', (e) => {
     e.preventDefault();
     currentGame.handleInput();
   }
-});
+}, { passive: false });

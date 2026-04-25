@@ -1,6 +1,8 @@
 import { Player } from './Player';
 import { LevelData, GameObject } from '../levels/data';
 
+const DEG_TO_RAD = Math.PI / 180;
+
 export class Game {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -10,10 +12,11 @@ export class Game {
   private cameraX: number = 0;
   private groundY: number;
   private maxObjWidth: number = 0;
+  private levelLength: number = 0;
 
   constructor(canvas: HTMLCanvasElement, level: LevelData) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext('2d')!;
+    this.ctx = canvas.getContext('2d', { alpha: false })!; // Optimization: Disable alpha if not needed
     this.player = new Player();
     // Optimization: Sort objects by x-coordinate to allow binary search for spatial pruning
     this.level = {
@@ -22,8 +25,11 @@ export class Game {
     };
 
     // Track max width to ensure binary search includes wide objects starting before the viewport
+    // Also determine level length for the progress bar
     for (const obj of this.level.objects) {
       if (obj.width > this.maxObjWidth) this.maxObjWidth = obj.width;
+      const rightEdge = obj.x + obj.width;
+      if (rightEdge > this.levelLength) this.levelLength = rightEdge;
     }
 
     this.canvas.width = 800;
@@ -101,30 +107,26 @@ export class Game {
   private checkCollisions() {
     let groundedOnObject = false;
 
-    const playerTop = this.player.y - this.player.height;
-    const playerBottom = this.player.y;
-    const playerLeft = this.player.x;
-    const playerRight = this.player.x + this.player.width;
+    // Optimization: Hoist player properties to avoid repeated property access
+    const { width: pWidth, height: pHeight, x: pLeft, vy: pVy } = this.player;
+    const pRight = pLeft + pWidth;
 
-    for (const obj of this.level.objects) {
-      // Spatial pruning: only check objects near the player
-      if (obj.x + obj.width < playerLeft - 30 || obj.x > playerRight + 30) {
-        continue;
-      }
+    this.forEachInRange(pLeft - 1, pRight + 1, (obj) => {
+      if (this.player.isDead) return; // Stop processing if already dead
 
-      const playerTop = this.player.y - playerHeight;
+      const pTop = this.player.y - pHeight;
+      const pBottom = this.player.y;
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, playerTop, playerWidth, playerHeight, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(pLeft, pTop, pWidth, pHeight, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
-          return;
         } else if (obj.type === 'block') {
           // Check if we are landing on top of the block
-          const prevPlayerBottom = this.player.y - this.player.vy;
+          const prevPlayerBottom = pBottom - pVy;
           // If we are above the block or falling into it from above
-          if (this.player.vy >= 0 && prevPlayerBottom <= objTop + 1) {
+          if (pVy >= 0 && prevPlayerBottom <= objTop + 1) {
             this.player.y = objTop;
             this.player.vy = 0;
             groundedOnObject = true;
@@ -136,7 +138,6 @@ export class Game {
             } else {
               // Hit the side or bottom of a block
               this.player.isDead = true;
-              return;
             }
           }
         }
@@ -167,50 +168,43 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    // Draw objects
-    for (const obj of level.objects) {
-      // Viewport culling: only draw objects visible on screen
-      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) {
-        continue;
-      }
+    // Optimization: Use Path2D for batching objects of the same type
+    const blocksPath = new Path2D();
+    const spikesPath = new Path2D();
+    let hasBlocks = false;
+    let hasSpikes = false;
 
+    // Viewport culling with spatial pruning
+    this.forEachInRange(cameraX, cameraX + canvas.width, (obj) => {
       if (obj.type === 'block') {
-        blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blocksPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
         hasBlocks = true;
       } else if (obj.type === 'spike') {
-        spikePath.moveTo(obj.x, -obj.y);
-        spikePath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
-        spikePath.lineTo(obj.x + obj.width, -obj.y);
-        spikePath.closePath();
+        spikesPath.moveTo(obj.x, -obj.y);
+        spikesPath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikesPath.lineTo(obj.x + obj.width, -obj.y);
+        spikesPath.closePath();
         hasSpikes = true;
       }
     });
 
     if (hasBlocks) {
       ctx.fillStyle = '#eee';
-      ctx.fill(blockPath);
+      ctx.fill(blocksPath);
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 1;
-      ctx.stroke(blockPath);
+      ctx.stroke(blocksPath);
     }
 
     if (hasSpikes) {
       ctx.fillStyle = '#ff4444';
-      ctx.fill(spikePath);
+      ctx.fill(spikesPath);
     }
-
-    ctx.fillStyle = '#eee';
-    ctx.fill(blocksPath);
-    ctx.strokeStyle = '#000';
-    ctx.stroke(blocksPath);
-
-    ctx.fillStyle = '#ff4444';
-    ctx.fill(spikesPath);
 
     // Draw player
     ctx.save();
     ctx.translate(player.x + player.width / 2, player.y - player.height / 2);
-    ctx.rotate((player.rotation * Math.PI) / 180);
+    ctx.rotate(player.rotation * DEG_TO_RAD); // Precomputed constant
     ctx.fillStyle = '#00ffff';
     ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
     ctx.strokeStyle = '#fff';
@@ -219,6 +213,13 @@ export class Game {
     ctx.restore();
 
     ctx.restore();
+
+    // Progress Bar
+    const progress = this.levelLength > 0 ? Math.min(player.x / this.levelLength, 1) : 0;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillRect(0, 0, canvas.width, 5);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width * progress, 5);
   }
 
   handleInput() {
