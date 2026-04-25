@@ -10,6 +10,7 @@ export class Game {
   private cameraX: number = 0;
   private groundY: number;
   private maxObjWidth: number = 0;
+  private levelLength: number = 0;
 
   constructor(canvas: HTMLCanvasElement, level: LevelData) {
     this.canvas = canvas;
@@ -22,8 +23,11 @@ export class Game {
     };
 
     // Track max width to ensure binary search includes wide objects starting before the viewport
+    // And calculate total level length for progress bar
     for (const obj of this.level.objects) {
       if (obj.width > this.maxObjWidth) this.maxObjWidth = obj.width;
+      const endX = obj.x + obj.width;
+      if (endX > this.levelLength) this.levelLength = endX;
     }
 
     this.canvas.width = 800;
@@ -76,8 +80,6 @@ export class Game {
     let startIndex = 0;
 
     // Binary search for first object that could overlap the range [minX, maxX]
-    // An object overlaps if obj.x + obj.width >= minX AND obj.x <= maxX.
-    // Since they are sorted by x, we find the first index where obj.x >= minX - maxObjWidth.
     const searchX = minX - this.maxObjWidth;
 
     while (start <= end) {
@@ -117,7 +119,18 @@ export class Game {
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, playerTop, playerWidth, playerHeight, objLeft, objTop, obj.width, obj.height)) {
+      if (
+        this.rectIntersect(
+          playerLeft,
+          playerTop,
+          this.player.width,
+          this.player.height,
+          objLeft,
+          objTop,
+          obj.width,
+          obj.height
+        )
+      ) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return true;
@@ -142,7 +155,7 @@ export class Game {
           }
         }
       }
-    });
+    }
 
     if (groundedOnObject) {
       this.player.isGrounded = true;
@@ -185,7 +198,7 @@ export class Game {
         spikePath.closePath();
         hasSpikes = true;
       }
-    });
+    }
 
     if (hasBlocks) {
       ctx.fillStyle = '#eee';
@@ -209,9 +222,29 @@ export class Game {
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
-    ctx.restore();
+    ctx.restore(); // Restore camera transform
+    ctx.restore(); // Restore global context (for cameraX, groundY translation)
 
-    ctx.restore();
+    // Level Progress Bar
+    const barWidth = 200;
+    const barHeight = 6;
+    const barX = (canvas.width - barWidth) / 2;
+    const barY = 20;
+    const progress = Math.min(1, player.x / this.levelLength);
+
+    // Bar background
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+
+    // Progress fill
+    ctx.fillStyle = '#00ffff';
+    ctx.fillRect(barX, barY, barWidth * progress, barHeight);
+
+    // Percentage text
+    ctx.fillStyle = '#fff';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${Math.floor(progress * 100)}%`, canvas.width / 2, barY + barHeight + 12);
   }
 
   handleInput() {
