@@ -19,3 +19,6 @@ canvas {
   left: 0;
   padding: 20px;
 }
+
+#level-select { display: flex; flex-direction: column; gap: 10px; }
+.hidden { display: none !important; }
