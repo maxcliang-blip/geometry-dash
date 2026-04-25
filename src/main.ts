@@ -5,7 +5,6 @@ import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/dat
 let currentGame: Game | null = null;
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ui = document.getElementById('ui') as HTMLDivElement;
-const levelButtons = document.querySelectorAll('#level-select button');
 
 function startGame(levelKey: string | null) {
   let levelData: LevelData;

@@ -9,10 +9,12 @@ body {
   color: white;
   font-family: sans-serif;
 }
+
 canvas {
   border: 2px solid white;
   background-color: #000;
 }
+
 #ui {
   position: absolute;
   top: 0;

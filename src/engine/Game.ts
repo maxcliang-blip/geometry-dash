@@ -23,6 +23,7 @@ export class Game {
     };
 
     // Track max width to ensure binary search includes wide objects starting before the viewport
+    // And calculate total level length for progress bar
     for (const obj of this.level.objects) {
       if (obj.width > this.maxObjWidth) this.maxObjWidth = obj.width;
       if (obj.x + obj.width > this.levelLength) this.levelLength = obj.x + obj.width;
@@ -130,7 +131,23 @@ export class Game {
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
-    ctx.restore();
+    ctx.restore(); // Restore camera transform
+    ctx.restore(); // Restore global context (for cameraX, groundY translation)
+
+    // Level Progress Bar
+    const barWidth = 200;
+    const barHeight = 6;
+    const barX = (canvas.width - barWidth) / 2;
+    const barY = 20;
+    const progress = Math.min(1, player.x / this.levelLength);
+
+    // Bar background
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+
+    // Progress fill
+    ctx.fillStyle = '#00ffff';
+    ctx.fillRect(barX, barY, barWidth * progress, barHeight);
 
     ctx.restore();
 
