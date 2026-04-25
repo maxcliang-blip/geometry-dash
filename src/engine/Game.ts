@@ -112,11 +112,11 @@ export class Game {
         continue;
       }
 
-      const playerTop = this.player.y - playerHeight;
+      const pTop = this.player.y - this.player.height;
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, playerTop, playerWidth, playerHeight, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(playerLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -141,7 +141,7 @@ export class Game {
           }
         }
       }
-    });
+    }
 
     if (groundedOnObject) {
       this.player.isGrounded = true;
@@ -167,6 +167,11 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
+    const blockPath = new Path2D();
+    const spikePath = new Path2D();
+    let hasBlocks = false;
+    let hasSpikes = false;
+
     // Draw objects
     for (const obj of level.objects) {
       // Viewport culling: only draw objects visible on screen
@@ -184,7 +189,7 @@ export class Game {
         spikePath.closePath();
         hasSpikes = true;
       }
-    });
+    }
 
     if (hasBlocks) {
       ctx.fillStyle = '#eee';
@@ -198,14 +203,6 @@ export class Game {
       ctx.fillStyle = '#ff4444';
       ctx.fill(spikePath);
     }
-
-    ctx.fillStyle = '#eee';
-    ctx.fill(blocksPath);
-    ctx.strokeStyle = '#000';
-    ctx.stroke(blocksPath);
-
-    ctx.fillStyle = '#ff4444';
-    ctx.fill(spikesPath);
 
     // Draw player
     ctx.save();

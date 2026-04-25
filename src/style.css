@@ -19,3 +19,11 @@ canvas {
   left: 0;
   padding: 20px;
 }
+.hidden {
+  display: none !important;
+}
+#controls {
+  margin-top: 20px;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
