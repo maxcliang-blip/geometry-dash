@@ -21,13 +21,6 @@ canvas {
   left: 0;
   padding: 20px;
 }
-
-#controls {
-  margin-top: 20px;
-  font-size: 0.9em;
-  opacity: 0.8;
-}
-
 .hidden {
   display: none !important;
 }

@@ -43,12 +43,11 @@ function backToMenu() {
   canvas.classList.add('hidden');
 }
 
-// Initialize level buttons
-document.querySelectorAll('#level-select button').forEach(button => {
+levelButtons.forEach((button) => {
   button.addEventListener('click', () => {
-    const level = button.getAttribute('data-level');
-    if (level) {
-      startGame(level);
+    const levelKey = button.getAttribute('data-level');
+    if (levelKey) {
+      startGame(levelKey);
     }
   });
 });
