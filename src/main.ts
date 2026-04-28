@@ -4,8 +4,15 @@ import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/dat
 let currentGame: Game | null = null;
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ui = document.getElementById('ui') as HTMLDivElement;
+const levelButtons = document.querySelectorAll('#level-select button');
 
 function startGame(levelKey: string | null) {
+  // 🛡️ SECURITY: Basic input validation for levelKey to prevent unexpected values from DOM attributes
+  if (levelKey && levelKey.length > 100) {
+    console.error('Invalid levelKey: length exceeds limit');
+    return;
+  }
+
   let levelData: LevelData;
 
   switch (levelKey) {
