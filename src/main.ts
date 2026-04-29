@@ -6,6 +6,12 @@ const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ui = document.getElementById('ui') as HTMLDivElement;
 
 function startGame(levelKey: string | null) {
+  // 🛡️ SECURITY: Defense-in-depth: limit input length to prevent abuse
+  if (levelKey && levelKey.length > 100) {
+    console.error('Invalid level key');
+    return;
+  }
+
   let levelData: LevelData;
 
   switch (levelKey) {
@@ -43,6 +49,7 @@ function backToMenu() {
 }
 
 // Add event listeners to level select buttons
+const levelButtons = document.querySelectorAll('#level-select button');
 levelButtons.forEach((button) => {
   button.addEventListener('click', () => {
     const level = button.getAttribute('data-level');
