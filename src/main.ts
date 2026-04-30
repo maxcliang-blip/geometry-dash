@@ -43,6 +43,7 @@ function backToMenu() {
 }
 
 // Add event listeners to level select buttons
+const levelButtons = document.querySelectorAll<HTMLButtonElement>('[data-level]');
 levelButtons.forEach((button) => {
   button.addEventListener('click', () => {
     const level = button.getAttribute('data-level');
