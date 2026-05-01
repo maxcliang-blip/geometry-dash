@@ -8,6 +8,8 @@ const ui = document.getElementById('ui') as HTMLDivElement;
 function startGame(levelKey: string | null) {
   let levelData: LevelData;
 
+  // 🛡️ SECURITY: Use a switch statement with hardcoded cases to act as an allowlist for level selection.
+  // This prevents arbitrary level loading if the input was ever to come from an untrusted source.
   switch (levelKey) {
     case 'stereo-madness':
       levelData = STEREO_MADNESS;
@@ -43,6 +45,8 @@ function backToMenu() {
 }
 
 // Add event listeners to level select buttons
+const levelButtons = document.querySelectorAll<HTMLButtonElement>('[data-level]');
+
 levelButtons.forEach((button) => {
   button.addEventListener('click', () => {
     const level = button.getAttribute('data-level');
