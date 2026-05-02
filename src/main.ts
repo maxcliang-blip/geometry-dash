@@ -8,6 +8,8 @@ const ui = document.getElementById('ui') as HTMLDivElement;
 function startGame(levelKey: string | null) {
   let levelData: LevelData;
 
+  // 🛡️ SECURITY: Explicitly whitelist level keys via switch case to prevent
+  // arbitrary level loading or injection of unauthorized level data.
   switch (levelKey) {
     case 'stereo-madness':
       levelData = STEREO_MADNESS;
@@ -43,6 +45,7 @@ function backToMenu() {
 }
 
 // Add event listeners to level select buttons
+const levelButtons = document.querySelectorAll<HTMLButtonElement>('[data-level]');
 levelButtons.forEach((button) => {
   button.addEventListener('click', () => {
     const level = button.getAttribute('data-level');
