@@ -29,3 +29,58 @@ canvas {
   font-size: 0.9em;
   opacity: 0.8;
 }
+
+#level-select {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#ui button {
+  padding: 10px 15px;
+  border: 2px solid white;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+#ui button:hover {
+  background: white;
+  color: #222;
+  transform: translateY(-2px);
+}
+
+#ui button:active {
+  transform: translateY(0);
+}
+
+#ui button:focus-visible {
+  outline: 3px solid #00ffff;
+  outline-offset: 2px;
+}
+
+.btn-easy { border-color: #4caf50 !important; }
+.btn-easy:hover { background: #4caf50 !important; color: white !important; }
+
+.btn-hard { border-color: #ff9800 !important; }
+.btn-hard:hover { background: #ff9800 !important; color: white !important; }
+
+.btn-demon { border-color: #f44336 !important; }
+.btn-demon:hover { background: #f44336 !important; color: white !important; }
+
+kbd {
+  background-color: #444;
+  border-radius: 3px;
+  border: 1px solid #666;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.2), 0 2px 0 0 rgba(255,255,255,0.1) inset;
+  color: #eee;
+  display: inline-block;
+  font-size: 0.85em;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
