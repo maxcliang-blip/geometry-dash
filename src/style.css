@@ -29,3 +29,44 @@ canvas {
   font-size: 0.9em;
   opacity: 0.8;
 }
+
+#level-select {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+button {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background-color: #666;
+}
+
+button:active {
+  transform: translateY(2px);
+}
+
+button:focus-visible {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}
+
+kbd {
+  background-color: #333;
+  border: 1px solid #555;
+  border-bottom: 3px solid #111;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: inherit;
+  font-size: 0.85em;
+  display: inline-block;
+  margin: 0 2px;
+}
