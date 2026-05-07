@@ -1,6 +1,8 @@
 import { Player } from './Player';
 import { LevelData, GameObject } from '../levels/data';
 
+const DEG_TO_RAD = Math.PI / 180;
+
 export class Game {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -67,38 +69,57 @@ export class Game {
     }
   }
 
+  /**
+   * Finds the first index in the sorted objects array that could potentially
+   * be visible or colliding at the given x coordinate.
+   */
+  private findFirstIndexAfter(x: number): number {
+    let low = 0;
+    let high = this.level.objects.length - 1;
+    let result = 0;
+
+    while (low <= high) {
+      const mid = (low + high) >>> 1;
+      if (this.level.objects[mid].x >= x) {
+        result = mid;
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return result;
+  }
+
   private checkCollisions() {
     let groundedOnObject = false;
     const pLeft = this.player.x;
     const pRight = this.player.x + this.player.width;
-    const pTop = this.player.y - this.player.height;
 
-    for (const obj of this.level.objects) {
-      if (obj.x + obj.width < pLeft - 30 || obj.x > pRight + 30) continue;
+    // Optimization: Start from binary-searched index and use manual loop for performance
+    const startIdx = this.findFirstIndexAfter(pLeft - this.maxObjWidth - 10);
+    for (let i = startIdx; i < this.level.objects.length; i++) {
+      const obj = this.level.objects[i];
+      if (obj.x > pRight + 10) break; // Spatial pruning: objects are sorted by X
+      if (obj.x + obj.width < pLeft - 10) continue;
 
       const pTop = this.player.y - this.player.height;
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(pLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
         } else if (obj.type === 'block') {
-          // Check if we are landing on top of the block
           const prevPlayerBottom = this.player.y - this.player.vy;
-          // If we are above the block or falling into it from above
           if (this.player.vy >= 0 && prevPlayerBottom <= objTop + 1) {
             this.player.y = objTop;
             this.player.vy = 0;
             groundedOnObject = true;
           } else {
-            // Check if it's just a floor-level block we are sliding into
             if (obj.y === 0 && this.player.y === 0) {
-              // Sliding on floor, ignore side collision with ground-level block
               groundedOnObject = true;
             } else {
-              // Hit the side or bottom of a block
               this.player.isDead = true;
               return;
             }
@@ -110,7 +131,6 @@ export class Game {
     if (groundedOnObject) {
       this.player.isGrounded = true;
     }
-    if (groundedOnObject) this.player.isGrounded = true;
   }
 
   private rectIntersect(x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number) {
@@ -132,21 +152,27 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
+    // Optimization: Batch drawing calls with Path2D
     const blockPath = new Path2D();
     const spikePath = new Path2D();
     let hasBlocks = false;
     let hasSpikes = false;
 
-    // Draw objects
-    for (const obj of level.objects) {
-      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) continue;
+    // Spatial pruning for rendering
+    const startIdx = this.findFirstIndexAfter(cameraX - this.maxObjWidth);
+    for (let i = startIdx; i < level.objects.length; i++) {
+      const obj = level.objects[i];
+      if (obj.x > cameraX + canvas.width) break; // Objects are sorted
+      if (obj.x + obj.width < cameraX) continue;
+
       if (obj.type === 'block') {
-        ctx.fillStyle = '#eee'; ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        ctx.strokeStyle = '#000'; ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        hasBlocks = true;
       } else if (obj.type === 'spike') {
-        ctx.fillStyle = '#ff4444'; ctx.beginPath(); ctx.moveTo(obj.x, -obj.y);
-        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height); ctx.lineTo(obj.x + obj.width, -obj.y);
-        ctx.fill();
+        spikePath.moveTo(obj.x, -obj.y);
+        spikePath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikePath.lineTo(obj.x + obj.width, -obj.y);
+        hasSpikes = true;
       }
     }
 
@@ -166,31 +192,15 @@ export class Game {
     // Draw player
     ctx.save();
     ctx.translate(player.x + player.width / 2, player.y - player.height / 2);
-    ctx.rotate((player.rotation * Math.PI) / 180);
+    ctx.rotate(player.rotation * DEG_TO_RAD); // Precomputed constant
     ctx.fillStyle = '#00ffff';
     ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
-    ctx.restore(); // Restore camera transform
-    ctx.restore(); // Restore global context (for cameraX, groundY translation)
-
-    // Level Progress Bar
-    const barWidth = 200;
-    const barHeight = 6;
-    const barX = (canvas.width - barWidth) / 2;
-    const barY = 20;
-    const progress = Math.min(1, player.x / this.levelLength);
-
-    // Bar background
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(barX, barY, barWidth, barHeight);
-
-    // Progress fill
-    ctx.fillStyle = '#00ffff';
-    ctx.fillRect(barX, barY, barWidth * progress, barHeight);
-
     ctx.restore();
+
+    ctx.restore(); // Restore camera transform
 
     // Progress bar (Overlay, should be drawn last after coordinate restores)
     this.drawProgressBar();
