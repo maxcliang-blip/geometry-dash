@@ -21,11 +21,51 @@ canvas {
   left: 0;
   padding: 20px;
 }
+#level-select {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#ui button {
+  background-color: #333;
+  color: white;
+  border: 2px solid #555;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  border-radius: 4px;
+}
+#ui button:hover {
+  background-color: #444;
+  border-color: #777;
+}
+#ui button:active {
+  transform: translateY(2px);
+}
+#ui button:focus-visible {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}
 .hidden {
   display: none !important;
 }
 #controls {
-  margin-top: 20px;
+  margin-top: 30px;
   font-size: 0.9em;
-  opacity: 0.8;
+  opacity: 0.9;
+}
+kbd {
+  background-color: #444;
+  border: 1px solid #666;
+  border-radius: 3px;
+  box-shadow: 0 2px 0 #222;
+  color: #eee;
+  display: inline-block;
+  font-family: monospace;
+  font-size: 0.85em;
+  font-weight: bold;
+  line-height: 1;
+  padding: 2px 5px;
+  white-space: nowrap;
 }
