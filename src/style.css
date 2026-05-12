@@ -29,3 +29,48 @@ canvas {
   font-size: 0.9em;
   opacity: 0.8;
 }
+
+#level-select {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#level-select button {
+  padding: 10px 15px;
+  background: #333;
+  color: white;
+  border: 2px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#level-select button:hover {
+  background: #444;
+  border-color: #00ffff;
+  transform: translateY(-2px);
+}
+
+#level-select button:active {
+  transform: translateY(0);
+}
+
+#level-select button:focus-visible {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}
+
+kbd {
+  background-color: #333;
+  border: 1px solid #666;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), inset 0 0 0 2px #444;
+  color: #eee;
+  display: inline-block;
+  font-family: inherit;
+  font-size: 0.85em;
+  line-height: 1;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
