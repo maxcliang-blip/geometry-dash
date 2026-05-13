@@ -2,10 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- 🛡️ Sentinel: Hardened CSP to follow defense-in-depth principles.
+         'base-uri none', 'object-src none', and 'form-action none' minimize attack surface.
+         'img-src self' (without data:) prevents XSS via data URIs. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' ws://localhost:* http://localhost:*; base-uri 'none'; object-src 'none'; form-action 'none';"
     />
+    <!-- 🛡️ Sentinel: Prevent leaking information in the Referer header -->
+    <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geometry Dash Clone</title>
     <link rel="stylesheet" href="/src/style.css" />
