@@ -17,15 +17,70 @@ canvas {
 
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-align: center;
 }
+
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+#ui button {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  background: #333;
+  border: 2px solid #555;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#ui button:hover {
+  background: #444;
+  border-color: #00ffff;
+  transform: translateY(-2px);
+}
+
+#ui button:active {
+  transform: translateY(0);
+  background: #222;
+}
+
+#ui button:focus-visible {
+  outline: 3px solid #00ffff;
+  outline-offset: 2px;
+}
+
+kbd {
+  background-color: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  box-shadow: 0 2px 0 #111;
+  color: #00ffff;
+  display: inline-block;
+  font-size: 0.85em;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 5px;
+  white-space: nowrap;
+}
+
 .hidden {
   display: none !important;
 }
+
 #controls {
-  margin-top: 20px;
+  margin-top: 30px;
   font-size: 0.9em;
   opacity: 0.8;
+  border-top: 1px solid #444;
+  padding-top: 15px;
 }
