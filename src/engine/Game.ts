@@ -11,6 +11,8 @@ export class Game {
   private groundY: number;
   private maxObjWidth: number = 0;
   private levelLength: number = 0;
+  private blockPath: Path2D = new Path2D();
+  private spikePath: Path2D = new Path2D();
 
   constructor(canvas: HTMLCanvasElement, level: LevelData) {
     this.canvas = canvas;
@@ -24,9 +26,19 @@ export class Game {
 
     // Track max width to ensure binary search includes wide objects starting before the viewport
     // And calculate total level length for progress bar
+    // Optimization: Pre-calculate Path2D for batch rendering
     for (const obj of this.level.objects) {
       if (obj.width > this.maxObjWidth) this.maxObjWidth = obj.width;
       if (obj.x + obj.width > this.levelLength) this.levelLength = obj.x + obj.width;
+
+      if (obj.type === 'block') {
+        this.blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+      } else if (obj.type === 'spike') {
+        this.spikePath.moveTo(obj.x, -obj.y);
+        this.spikePath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        this.spikePath.lineTo(obj.x + obj.width, -obj.y);
+        this.spikePath.closePath();
+      }
     }
 
     this.canvas.width = 800;
@@ -67,20 +79,36 @@ export class Game {
     }
   }
 
+  private findFirstIndexAfter(x: number): number {
+    let low = 0;
+    let high = this.level.objects.length;
+    while (low < high) {
+      const mid = (low + high) >>> 1;
+      if (this.level.objects[mid].x < x) low = mid + 1;
+      else high = mid;
+    }
+    return low;
+  }
+
   private checkCollisions() {
     let groundedOnObject = false;
     const pLeft = this.player.x;
     const pRight = this.player.x + this.player.width;
     const pTop = this.player.y - this.player.height;
 
-    for (const obj of this.level.objects) {
-      if (obj.x + obj.width < pLeft - 30 || obj.x > pRight + 30) continue;
+    // Spatial pruning: use binary search to find objects in the player's vicinity
+    // Account for maxObjWidth to include objects that start before pLeft but overlap
+    const startIdx = this.findFirstIndexAfter(pLeft - this.maxObjWidth - 10);
+
+    for (let i = startIdx; i < this.level.objects.length; i++) {
+      const obj = this.level.objects[i];
+      if (obj.x > pRight + 10) break; // Optimization: stop searching once objects are beyond player
 
       const pTop = this.player.y - this.player.height;
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(pLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -110,7 +138,6 @@ export class Game {
     if (groundedOnObject) {
       this.player.isGrounded = true;
     }
-    if (groundedOnObject) this.player.isGrounded = true;
   }
 
   private rectIntersect(x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number) {
@@ -132,35 +159,48 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    const blockPath = new Path2D();
-    const spikePath = new Path2D();
+    // Draw objects - batch rendered via Path2D for performance
+    // Optimization: While we use Path2D, we still perform basic viewport culling
+    // to avoid drawing objects that are far off-screen.
+    const startIdx = this.findFirstIndexAfter(cameraX - this.maxObjWidth);
+
+    // Instead of drawing the whole Path2D (which would be ctx.fill(this.blockPath)),
+    // we iterate and draw only visible objects. While Path2D is efficient,
+    // iterating over visible objects is often better for very large levels.
+    // However, to satisfy BOTH Path2D batching and culling, we can create
+    // a dynamic Path2D for the current frame.
+    const visibleBlocks = new Path2D();
+    const visibleSpikes = new Path2D();
     let hasBlocks = false;
     let hasSpikes = false;
 
-    // Draw objects
-    for (const obj of level.objects) {
-      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) continue;
+    for (let i = startIdx; i < this.level.objects.length; i++) {
+      const obj = this.level.objects[i];
+      if (obj.x > cameraX + canvas.width) break;
+
       if (obj.type === 'block') {
-        ctx.fillStyle = '#eee'; ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        ctx.strokeStyle = '#000'; ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        visibleBlocks.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        hasBlocks = true;
       } else if (obj.type === 'spike') {
-        ctx.fillStyle = '#ff4444'; ctx.beginPath(); ctx.moveTo(obj.x, -obj.y);
-        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height); ctx.lineTo(obj.x + obj.width, -obj.y);
-        ctx.fill();
+        visibleSpikes.moveTo(obj.x, -obj.y);
+        visibleSpikes.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        visibleSpikes.lineTo(obj.x + obj.width, -obj.y);
+        visibleSpikes.closePath();
+        hasSpikes = true;
       }
     }
 
     if (hasBlocks) {
       ctx.fillStyle = '#eee';
-      ctx.fill(blockPath);
+      ctx.fill(visibleBlocks);
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 1;
-      ctx.stroke(blockPath);
+      ctx.stroke(visibleBlocks);
     }
 
     if (hasSpikes) {
       ctx.fillStyle = '#ff4444';
-      ctx.fill(spikePath);
+      ctx.fill(visibleSpikes);
     }
 
     // Draw player
@@ -172,16 +212,18 @@ export class Game {
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
-    ctx.restore(); // Restore camera transform
-    ctx.restore(); // Restore global context (for cameraX, groundY translation)
+    ctx.restore(); // Restore player transform
 
-    // Level Progress Bar
+    ctx.restore(); // Restore camera transform
+
+    // Level Progress Bar (Small centered version)
     const barWidth = 200;
     const barHeight = 6;
     const barX = (canvas.width - barWidth) / 2;
     const barY = 20;
-    const progress = Math.min(1, player.x / this.levelLength);
+    const progress = Math.min(1, Math.max(0, player.x / this.levelLength));
 
+    ctx.save();
     // Bar background
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.fillRect(barX, barY, barWidth, barHeight);
@@ -189,10 +231,9 @@ export class Game {
     // Progress fill
     ctx.fillStyle = '#00ffff';
     ctx.fillRect(barX, barY, barWidth * progress, barHeight);
-
     ctx.restore();
 
-    // Progress bar (Overlay, should be drawn last after coordinate restores)
+    // Large Progress bar Overlay
     this.drawProgressBar();
   }
 
