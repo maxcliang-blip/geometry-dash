@@ -17,10 +17,38 @@ canvas {
 
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  min-width: 320px;
 }
+
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+button:focus-visible {
+  outline: 3px solid #00ffff;
+  outline-offset: 4px;
+}
+
+kbd {
+  background-color: #333;
+  border-radius: 3px;
+  border: 1px solid #555;
+  padding: 1px 4px;
+  font-family: monospace;
+}
+
 .hidden {
   display: none !important;
 }
