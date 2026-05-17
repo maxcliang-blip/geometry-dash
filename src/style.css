@@ -24,6 +24,28 @@ canvas {
 .hidden {
   display: none !important;
 }
+#level-select button {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+#level-select button:hover {
+  background-color: #eee;
+  color: #222;
+  transform: translateY(-1px);
+}
+
+#level-select button:active {
+  transform: translateY(0);
+}
+
+#level-select button:focus-visible {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}
+
 #controls {
   margin-top: 20px;
   font-size: 0.9em;

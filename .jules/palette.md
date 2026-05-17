@@ -1,3 +1,3 @@
-## 2026-04-18 - Semantic Level Selection
-**Learning:** Using a `<nav>` with `aria-label` for level selection improves screen reader navigation by clearly identifying the navigation landmark and its purpose.
-**Action:** Always wrap menu-like button groups in semantic navigation elements with descriptive labels.
+## 2025-05-14 - Functional Blockers in UX Polish
+**Learning:** UX improvements (like hover states) are invisible and untestable if the underlying interaction logic (e.g., button event listeners) is broken due to uninitialized variables or typos.
+**Action:** Prioritize fixing critical functional bugs that block UI interaction even when the primary mission is UX/Accessibility, as "Good UX is invisible - it just works."
