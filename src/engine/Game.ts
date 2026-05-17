@@ -73,14 +73,16 @@ export class Game {
     const pRight = this.player.x + this.player.width;
     const pTop = this.player.y - this.player.height;
 
-    for (const obj of this.level.objects) {
-      if (obj.x + obj.width < pLeft - 30 || obj.x > pRight + 30) continue;
+    // Optimization: Use binary search to only check objects near the player (O(log N + M) where M is nearby objects)
+    const startIndex = this.findFirstIndexAfter(pLeft - 30);
+    for (let i = startIndex; i < this.level.objects.length; i++) {
+      const obj = this.level.objects[i];
+      if (obj.x > pRight + 30) break; // Optimization: Stop once objects are past the player
 
-      const pTop = this.player.y - this.player.height;
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(pLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -110,11 +112,33 @@ export class Game {
     if (groundedOnObject) {
       this.player.isGrounded = true;
     }
-    if (groundedOnObject) this.player.isGrounded = true;
   }
 
   private rectIntersect(x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number) {
     return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
+  }
+
+  /**
+   * Optimization: Find the first index in the sorted level.objects array that might be visible or interacting.
+   * Uses binary search to find the first object where obj.x >= minX - maxObjWidth.
+   */
+  private findFirstIndexAfter(minX: number): number {
+    const { objects } = this.level;
+    const searchX = minX - this.maxObjWidth;
+    let low = 0;
+    let high = objects.length - 1;
+    let result = 0;
+
+    while (low <= high) {
+      const mid = (low + high) >>> 1;
+      if (objects[mid].x >= searchX) {
+        result = mid;
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return result;
   }
 
   private draw() {
@@ -132,21 +156,26 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
+    // Optimization: Batch rendering with Path2D to reduce Canvas API calls
     const blockPath = new Path2D();
     const spikePath = new Path2D();
     let hasBlocks = false;
     let hasSpikes = false;
 
-    // Draw objects
-    for (const obj of level.objects) {
-      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) continue;
+    // Optimization: Use binary search to only iterate over potentially visible objects
+    const startIndex = this.findFirstIndexAfter(cameraX);
+    for (let i = startIndex; i < level.objects.length; i++) {
+      const obj = level.objects[i];
+      if (obj.x > cameraX + canvas.width) break; // Optimization: Stop once objects are past the viewport
+
       if (obj.type === 'block') {
-        ctx.fillStyle = '#eee'; ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        ctx.strokeStyle = '#000'; ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        hasBlocks = true;
       } else if (obj.type === 'spike') {
-        ctx.fillStyle = '#ff4444'; ctx.beginPath(); ctx.moveTo(obj.x, -obj.y);
-        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height); ctx.lineTo(obj.x + obj.width, -obj.y);
-        ctx.fill();
+        spikePath.moveTo(obj.x, -obj.y);
+        spikePath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikePath.lineTo(obj.x + obj.width, -obj.y);
+        hasSpikes = true;
       }
     }
 
@@ -172,25 +201,9 @@ export class Game {
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
-    ctx.restore(); // Restore camera transform
-    ctx.restore(); // Restore global context (for cameraX, groundY translation)
-
-    // Level Progress Bar
-    const barWidth = 200;
-    const barHeight = 6;
-    const barX = (canvas.width - barWidth) / 2;
-    const barY = 20;
-    const progress = Math.min(1, player.x / this.levelLength);
-
-    // Bar background
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(barX, barY, barWidth, barHeight);
-
-    // Progress fill
-    ctx.fillStyle = '#00ffff';
-    ctx.fillRect(barX, barY, barWidth * progress, barHeight);
-
     ctx.restore();
+
+    ctx.restore(); // Restore camera transform
 
     // Progress bar (Overlay, should be drawn last after coordinate restores)
     this.drawProgressBar();
