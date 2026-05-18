@@ -17,15 +17,82 @@ canvas {
 
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
 }
+
+h1 {
+  margin-top: 0;
+  font-size: 2rem;
+  background: linear-gradient(45deg, #00ffff, #0088ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 30px;
+}
+
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#level-select button {
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+#level-select button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  border-color: #00ffff;
+}
+
+#level-select button:active {
+  transform: translateY(0);
+  background: rgba(0, 255, 255, 0.2);
+}
+
+#level-select button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.5);
+  border-color: #00ffff;
+}
+
 .hidden {
   display: none !important;
 }
+
 #controls {
-  margin-top: 20px;
-  font-size: 0.9em;
-  opacity: 0.8;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+kbd {
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: monospace;
+  box-shadow: 0 2px 0 #111;
+  color: #00ffff;
 }
