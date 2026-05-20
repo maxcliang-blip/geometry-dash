@@ -2,10 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      Strict Content Security Policy:
+      - default-src 'self': Only allow assets from this origin by default.
+      - object-src 'none': Disable plugins like Flash to reduce attack surface.
+      - base-uri 'none': Prevent base tag hijacking.
+      - script/style/img/connect-src: Explicitly allow necessary resources.
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*; object-src 'none'; base-uri 'none';"
     />
+    <!-- Prevent leaking data via the Referer header -->
+    <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geometry Dash Clone</title>
     <link rel="stylesheet" href="/src/style.css" />
