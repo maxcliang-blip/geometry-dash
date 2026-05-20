@@ -17,12 +17,46 @@ canvas {
 
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  text-align: center;
+  min-width: 280px;
 }
 .hidden {
   display: none !important;
+}
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0;
+}
+button {
+  background: #333;
+  color: white;
+  border: 1px solid #555;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+button:hover {
+  background: #444;
+  transform: scale(1.05);
+  border-color: #00ffff;
+}
+button:active {
+  transform: scale(0.95);
+}
+button:focus-visible {
+  outline: 2px solid #00ffff;
+  outline-offset: 4px;
 }
 #controls {
   margin-top: 20px;
