@@ -1,31 +1,11 @@
-body {
-  margin: 0;
-  overflow: hidden;
-  background-color: #222;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  color: white;
-  font-family: sans-serif;
-}
-
-canvas {
-  border: 2px solid white;
-  background-color: #000;
-}
-
-#ui {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
-}
-.hidden {
-  display: none !important;
-}
-#controls {
-  margin-top: 20px;
-  font-size: 0.9em;
-  opacity: 0.8;
-}
+body { margin: 0; overflow: hidden; background: #222; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: sans-serif; }
+canvas { border: 2px solid white; background: #000; }
+#ui { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); padding: 40px; border-radius: 20px; text-align: center; backdrop-filter: blur(8px); min-width: 280px; }
+#level-select { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+button { background: #333; color: white; border: 1px solid #555; padding: 12px 24px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+button:hover { background: #444; transform: translateY(-2px); border-color: #00ffff; }
+button:active { transform: translateY(0); background: #222; }
+button:focus-visible { outline: 2px solid #00ffff; outline-offset: 2px; }
+kbd { background: #333; border: 1px solid #555; border-radius: 4px; box-shadow: 0 2px 0 #111; color: #00ffff; padding: 2px 5px; font-family: monospace; font-weight: bold; }
+.hidden { display: none !important; }
+#controls { margin-top: 30px; font-size: 0.9em; opacity: 0.9; border-top: 1px solid #444; padding-top: 20px; }
