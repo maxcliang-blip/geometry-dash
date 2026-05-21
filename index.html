@@ -2,10 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      Content Security Policy (CSP) Hardening:
+      - default-src 'none': Block all content by default (Principle of Least Privilege).
+      - script-src 'self': Only allow scripts from our own origin.
+      - style-src 'self': Only allow CSS from our own origin.
+      - img-src 'self' data:: Allow images from self and data URIs.
+      - connect-src 'self' ...: Allow API/WebSocket connections to self and local dev server.
+      - base-uri 'none': Prevent <base> tag hijacking.
+      - object-src 'none': Disable plugins like Flash.
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*; base-uri 'none'; object-src 'none';"
     />
+    <!-- Prevent leaking sensitive information in the Referer header -->
+    <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geometry Dash Clone</title>
     <link rel="stylesheet" href="/src/style.css" />
