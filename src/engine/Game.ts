@@ -71,7 +71,6 @@ export class Game {
     let groundedOnObject = false;
     const pLeft = this.player.x;
     const pRight = this.player.x + this.player.width;
-    const pTop = this.player.y - this.player.height;
 
     for (const obj of this.level.objects) {
       if (obj.x + obj.width < pLeft - 30 || obj.x > pRight + 30) continue;
@@ -80,7 +79,7 @@ export class Game {
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(pLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -110,7 +109,6 @@ export class Game {
     if (groundedOnObject) {
       this.player.isGrounded = true;
     }
-    if (groundedOnObject) this.player.isGrounded = true;
   }
 
   private rectIntersect(x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number) {
@@ -132,11 +130,6 @@ export class Game {
     ctx.fillStyle = level.groundColor;
     ctx.fillRect(cameraX, 0, canvas.width, canvas.height - groundY);
 
-    const blockPath = new Path2D();
-    const spikePath = new Path2D();
-    let hasBlocks = false;
-    let hasSpikes = false;
-
     // Draw objects
     for (const obj of level.objects) {
       if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) continue;
@@ -150,19 +143,6 @@ export class Game {
       }
     }
 
-    if (hasBlocks) {
-      ctx.fillStyle = '#eee';
-      ctx.fill(blockPath);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 1;
-      ctx.stroke(blockPath);
-    }
-
-    if (hasSpikes) {
-      ctx.fillStyle = '#ff4444';
-      ctx.fill(spikePath);
-    }
-
     // Draw player
     ctx.save();
     ctx.translate(player.x + player.width / 2, player.y - player.height / 2);
@@ -172,27 +152,9 @@ export class Game {
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
-    ctx.restore(); // Restore camera transform
-    ctx.restore(); // Restore global context (for cameraX, groundY translation)
-
-    // Level Progress Bar
-    const barWidth = 200;
-    const barHeight = 6;
-    const barX = (canvas.width - barWidth) / 2;
-    const barY = 20;
-    const progress = Math.min(1, player.x / this.levelLength);
-
-    // Bar background
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(barX, barY, barWidth, barHeight);
-
-    // Progress fill
-    ctx.fillStyle = '#00ffff';
-    ctx.fillRect(barX, barY, barWidth * progress, barHeight);
-
+    ctx.restore();
     ctx.restore();
 
-    // Progress bar (Overlay, should be drawn last after coordinate restores)
     this.drawProgressBar();
   }
 
@@ -204,15 +166,10 @@ export class Game {
     const progress = Math.min(1, Math.max(0, player.x / levelLength));
 
     ctx.save();
-    // Container
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
     ctx.fillRect(padding, padding, barWidth, barHeight);
-
-    // Progress
     ctx.fillStyle = '#fff';
     ctx.fillRect(padding, padding, barWidth * progress, barHeight);
-
-    // Text
     ctx.fillStyle = '#fff';
     ctx.font = '12px sans-serif';
     ctx.textAlign = 'center';
