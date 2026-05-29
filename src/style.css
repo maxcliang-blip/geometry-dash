@@ -9,23 +9,25 @@ body {
   color: white;
   font-family: sans-serif;
 }
-
-canvas {
-  border: 2px solid white;
-  background-color: #000;
-}
-
+canvas { border: 2px solid white; background-color: #000; }
 #ui {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  padding: 30px; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
+  border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: center;
 }
-.hidden {
-  display: none !important;
+.hidden { display: none !important; }
+#level-select { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+button {
+  padding: 12px 24px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px;
+  background: #444; color: white; transition: transform 0.1s, filter 0.1s;
 }
-#controls {
-  margin-top: 20px;
-  font-size: 0.9em;
-  opacity: 0.8;
+button:hover { transform: scale(1.05); filter: brightness(1.2); }
+button:active { transform: scale(0.95); }
+button[data-level="stereo-madness"] { background: #3498db; }
+button[data-level="cant-let-go"] { background: #e74c3c; }
+button[data-level="deadlocked"] { background: #9b59b6; }
+#controls { margin-top: 20px; font-size: 0.9em; opacity: 0.8; }
+kbd {
+  background: #333; border: 1px solid #555; border-radius: 4px; padding: 2px 6px;
+  font-family: monospace; box-shadow: 0 2px 0 #111; position: relative; top: -1px;
 }
