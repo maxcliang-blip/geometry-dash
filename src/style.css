@@ -17,15 +17,58 @@ canvas {
 
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 16px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
-.hidden {
-  display: none !important;
+.hidden { display: none !important; }
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
 }
+#level-select button {
+  padding: 12px 24px;
+  font-size: 1.1em;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  transition: transform 0.1s, filter 0.2s;
+}
+#level-select button:hover { transform: scale(1.05); filter: brightness(1.1); }
+#level-select button:active { transform: scale(0.98); }
+button[data-level="stereo-madness"] { background: #2196F3; }
+button[data-level="cant-let-go"] { background: #F44336; }
+button[data-level="deadlocked"] { background: #9C27B0; }
 #controls {
   margin-top: 20px;
   font-size: 0.9em;
   opacity: 0.8;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  padding-top: 10px;
 }
+#back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8em;
+  backdrop-filter: blur(5px);
+  transition: background 0.2s;
+}
+#back-button:hover { background: rgba(0, 0, 0, 0.8); }
