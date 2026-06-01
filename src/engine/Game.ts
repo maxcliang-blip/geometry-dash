@@ -80,7 +80,7 @@ export class Game {
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(pLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -110,7 +110,6 @@ export class Game {
     if (groundedOnObject) {
       this.player.isGrounded = true;
     }
-    if (groundedOnObject) this.player.isGrounded = true;
   }
 
   private rectIntersect(x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number) {
@@ -175,22 +174,6 @@ export class Game {
     ctx.restore(); // Restore camera transform
     ctx.restore(); // Restore global context (for cameraX, groundY translation)
 
-    // Level Progress Bar
-    const barWidth = 200;
-    const barHeight = 6;
-    const barX = (canvas.width - barWidth) / 2;
-    const barY = 20;
-    const progress = Math.min(1, player.x / this.levelLength);
-
-    // Bar background
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(barX, barY, barWidth, barHeight);
-
-    // Progress fill
-    ctx.fillStyle = '#00ffff';
-    ctx.fillRect(barX, barY, barWidth * progress, barHeight);
-
-    ctx.restore();
 
     // Progress bar (Overlay, should be drawn last after coordinate restores)
     this.drawProgressBar();
