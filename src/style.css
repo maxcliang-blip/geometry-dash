@@ -16,16 +16,61 @@ canvas {
 }
 
 #ui {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  text-align: center;
 }
 .hidden {
   display: none !important;
 }
 #controls {
-  margin-top: 20px;
+  margin-top: 30px;
   font-size: 0.9em;
   opacity: 0.8;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 20px;
+}
+
+#back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, transform 0.1s;
+}
+
+#back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#back-button:active {
+  transform: scale(0.95);
+}
+
+#level-select button {
+  margin: 5px;
+  padding: 10px 15px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+#level-select button:hover {
+  background: #666;
+}
+
+#level-select button:active {
+  transform: scale(0.95);
 }
