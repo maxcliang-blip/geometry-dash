@@ -2,10 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!--
+      Content Security Policy:
+      - default-src 'none': Deny everything by default.
+      - script-src 'self': Allow scripts from the same origin.
+      - style-src 'self': Allow styles from the same origin.
+      - img-src 'self': Allow images from the same origin.
+      - media-src 'self': Allow audio/video from the same origin.
+      - font-src 'self': Allow fonts from the same origin.
+      - connect-src 'self' ...: Allow connections for Vite HMR.
+      - object-src 'none': Disallow plugins like Flash.
+      - base-uri 'none': Prevent base tag manipulation.
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self' ws://localhost:* http://localhost:*; object-src 'none'; base-uri 'none';"
     />
+    <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geometry Dash Clone</title>
     <link rel="stylesheet" href="/src/style.css" />
