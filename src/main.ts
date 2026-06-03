@@ -4,6 +4,8 @@ import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/dat
 let currentGame: Game | null = null;
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ui = document.getElementById('ui') as HTMLDivElement;
+const levelButtons = document.querySelectorAll<HTMLButtonElement>('#level-select button');
+const backButton = document.getElementById('back-button') as HTMLButtonElement;
 
 function startGame(levelKey: string | null) {
   let levelData: LevelData;
@@ -28,6 +30,7 @@ function startGame(levelKey: string | null) {
 
   ui.classList.add('hidden');
   canvas.classList.remove('hidden');
+  backButton.classList.remove('hidden');
 
   currentGame = new Game(canvas, levelData);
   currentGame.start();
@@ -40,7 +43,10 @@ function backToMenu() {
   }
   ui.classList.remove('hidden');
   canvas.classList.add('hidden');
+  backButton.classList.add('hidden');
 }
+
+backButton.addEventListener('click', backToMenu);
 
 // Add event listeners to level select buttons
 levelButtons.forEach((button) => {
