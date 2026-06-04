@@ -9,17 +9,35 @@ body {
   color: white;
   font-family: sans-serif;
 }
-
 canvas {
   border: 2px solid white;
   background-color: #000;
 }
-
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
   padding: 20px;
+}
+#level-select button {
+  margin: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+}
+button[data-level="stereo-madness"] { background-color: #3498db; }
+button[data-level="cant-let-go"] { background-color: #e74c3c; }
+button[data-level="deadlocked"] { background-color: #9b59b6; }
+#back-button {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  padding: 8px 16px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: 1px solid white;
+  cursor: pointer;
 }
 .hidden {
   display: none !important;
