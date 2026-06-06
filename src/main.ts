@@ -42,8 +42,10 @@ function backToMenu() {
   canvas.classList.add('hidden');
 }
 
+const levelButtons = document.querySelectorAll<HTMLButtonElement>('#level-select button');
+
 // Add event listeners to level select buttons
-levelButtons.forEach((button) => {
+levelButtons.forEach((button: HTMLButtonElement) => {
   button.addEventListener('click', () => {
     const level = button.getAttribute('data-level');
     if (level) {
