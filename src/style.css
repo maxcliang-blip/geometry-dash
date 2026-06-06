@@ -29,3 +29,47 @@ canvas {
   font-size: 0.9em;
   opacity: 0.8;
 }
+
+#back-button {
+  position: absolute;
+  top: 40px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid white;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s;
+}
+
+#back-button:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+#level-select {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#level-select button {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+#level-select button:hover {
+  transform: scale(1.05);
+  background: #555;
+}
+
+#level-select button:focus-visible {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}
