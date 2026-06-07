@@ -17,15 +17,25 @@ canvas {
 
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  padding: 30px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  border-radius: 20px;
+  text-align: center;
 }
-.hidden {
-  display: none !important;
+.hidden { display: none !important; }
+#level-select { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+button {
+  padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
+  transition: all 0.2s; font-weight: bold; color: white;
 }
-#controls {
-  margin-top: 20px;
-  font-size: 0.9em;
-  opacity: 0.8;
+button:hover { transform: translateY(-2px); filter: brightness(1.1); }
+button[data-level="stereo-madness"] { background: #3498db; }
+button[data-level="cant-let-go"] { background: #e74c3c; }
+button[data-level="deadlocked"] { background: #9b59b6; }
+#back-button { position: absolute; top: 20px; left: 20px; background: #555; }
+#controls { margin-top: 20px; border-top: 1px solid #444; padding-top: 15px; }
+kbd {
+  background: #eee; border-radius: 3px; border: 1px solid #ccc;
+  box-shadow: 0 2px 0 #bbb; color: #333; padding: 1px 5px; font-size: 0.9em;
 }
