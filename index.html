@@ -13,15 +13,15 @@
   <body>
     <div id="ui">
       <h1>Geometry Dash Clone</h1>
-      <div id="level-select">
+      <nav id="level-select" aria-label="Level selection">
         <button data-level="stereo-madness" aria-label="Play Stereo Madness - Easy difficulty">Stereo Madness (Easy)</button>
         <button data-level="cant-let-go" aria-label="Play Can't Let Go - Hard difficulty">Can't Let Go (Hard)</button>
         <button data-level="deadlocked" aria-label="Play Deadlocked - Demon difficulty">Deadlocked (Demon)</button>
-      </div>
+      </nav>
       <div id="controls">
         <h3>Controls</h3>
-        <p>Space / Up Arrow: Jump</p>
-        <p>Esc: Back to Menu</p>
+        <p><kbd>Space</kbd> / <kbd>↑</kbd>: Jump</p>
+        <p><kbd>Esc</kbd>: Back to Menu</p>
       </div>
     </div>
     <canvas id="gameCanvas" class="hidden"></canvas>
