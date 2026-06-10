@@ -21,6 +21,21 @@ canvas {
   left: 0;
   padding: 20px;
 }
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+button {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:focus-visible {
+  outline: 2px solid #00ffff;
+  outline-offset: 2px;
+}
 .hidden {
   display: none !important;
 }
@@ -28,4 +43,14 @@ canvas {
   margin-top: 20px;
   font-size: 0.9em;
   opacity: 0.8;
+}
+kbd {
+  background-color: #eee;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 0 #bbb;
+  color: #333;
+  display: inline-block;
+  font-size: 0.85em;
+  padding: 1px 4px;
 }
