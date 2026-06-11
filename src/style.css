@@ -29,3 +29,17 @@ canvas {
   font-size: 0.9em;
   opacity: 0.8;
 }
+
+kbd {
+  background-color: #eee;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 0 #bbb;
+  color: #333;
+  display: inline-block;
+  font-size: 0.85em;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 5px;
+  white-space: nowrap;
+}
