@@ -20,5 +20,8 @@
   "homepage": "https://github.com/maxcliang-blip/geometry-dash#readme",
   "devDependencies": {
     "vite": "latest"
+  },
+  "dependencies": {
+    "typescript": "^6.0.3"
   }
 }
