@@ -1,31 +1,46 @@
 body {
   margin: 0;
   overflow: hidden;
-  background-color: #222;
+  background-color: #1a1a1a;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   color: white;
-  font-family: sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
 }
-
 canvas {
-  border: 2px solid white;
+  border: 2px solid #444;
+  border-radius: 8px;
   background-color: #000;
 }
-
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.hidden {
-  display: none !important;
+h1 { margin: 0 0 20px; font-size: 2em; color: #00ffff; }
+#level-select { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+button {
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: white;
 }
-#controls {
-  margin-top: 20px;
-  font-size: 0.9em;
-  opacity: 0.8;
-}
+button:hover { transform: translateY(-2px); filter: brightness(1.1); }
+button[data-level="stereo-madness"] { background: #3498db; }
+button[data-level="cant-let-go"] { background: #e74c3c; }
+button[data-level="deadlocked"] { background: #9b59b6; }
+kbd { background: #333; border: 1px solid #555; border-radius: 4px; padding: 1px 5px; font-size: 0.9em; }
+.hidden { display: none !important; }
+#controls { margin-top: 20px; opacity: 0.8; font-size: 0.9em; }
