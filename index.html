@@ -2,10 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Hardened CSP:
+         - object-src 'none' prevents plugin-based attacks like Flash.
+         - base-uri 'self' prevents base tag hijacking.
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*; object-src 'none'; base-uri 'self';"
     />
+    <!-- No-referrer policy prevents leaking path and query data to third-party domains. -->
+    <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geometry Dash Clone</title>
     <link rel="stylesheet" href="/src/style.css" />
