@@ -29,3 +29,29 @@ canvas {
   font-size: 0.9em;
   opacity: 0.8;
 }
+
+button {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+kbd {
+  background-color: #333;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: monospace;
+}
