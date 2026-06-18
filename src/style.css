@@ -17,15 +17,84 @@ canvas {
 
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  min-width: 300px;
 }
+
 .hidden {
   display: none !important;
 }
+
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+#level-select button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+#level-select button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+#level-select button:active {
+  transform: translateY(0);
+}
+
+#level-select button:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 2px;
+}
+
+.level-easy {
+  background-color: #3498db;
+}
+
+.level-hard {
+  background-color: #e74c3c;
+}
+
+.level-demon {
+  background-color: #9b59b6;
+}
+
 #controls {
-  margin-top: 20px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.9em;
-  opacity: 0.8;
+  opacity: 0.9;
+}
+
+#controls h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8em;
+}
+
+#controls p {
+  margin: 5px 0;
 }
