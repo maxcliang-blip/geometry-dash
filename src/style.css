@@ -29,3 +29,27 @@ canvas {
   font-size: 0.9em;
   opacity: 0.8;
 }
+
+#level-select {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+#level-select button {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition:
+    transform 0.1s,
+    background-color 0.2s;
+}
+
+#level-select button:hover {
+  transform: translateY(-2px);
+  background-color: #eee;
+}
+
+#level-select button:focus-visible {
+  outline: 3px solid #3498db;
+  outline-offset: 2px;
+}
