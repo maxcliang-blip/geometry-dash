@@ -2,10 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Harden Content Security Policy:
+         - default-src 'self': Only allow content from our own origin.
+         - object-src 'none': Block plugins like Flash to reduce attack surface.
+         - base-uri 'self': Prevent base tag hijacking which can redirect relative URLs.
+         - img-src 'self' data:: Allow images from self and data URIs (common for Vite).
+         - connect-src 'self' ws://localhost:* http://localhost:*: Allow dev server connections.
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*; object-src 'none'; base-uri 'self';"
     />
+    <!-- Referrer-Policy: no-referrer ensures no referrer information is sent in requests, protecting user privacy. -->
+    <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geometry Dash Clone</title>
     <link rel="stylesheet" href="/src/style.css" />
