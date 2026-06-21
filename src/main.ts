@@ -1,21 +1,26 @@
-import { Game } from './engine/Game';
-import { STEREO_MADNESS, CANT_LET_GO, DEADLOCKED, LevelData } from './levels/data';
+import { Game } from "./engine/Game";
+import {
+  STEREO_MADNESS,
+  CANT_LET_GO,
+  DEADLOCKED,
+  LevelData,
+} from "./levels/data";
 
 let currentGame: Game | null = null;
-const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-const ui = document.getElementById('ui') as HTMLDivElement;
+const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
+const ui = document.getElementById("ui") as HTMLDivElement;
 
 function startGame(levelKey: string | null) {
   let levelData: LevelData;
 
   switch (levelKey) {
-    case 'stereo-madness':
+    case "stereo-madness":
       levelData = STEREO_MADNESS;
       break;
-    case 'cant-let-go':
+    case "cant-let-go":
       levelData = CANT_LET_GO;
       break;
-    case 'deadlocked':
+    case "deadlocked":
       levelData = DEADLOCKED;
       break;
     default:
@@ -26,8 +31,8 @@ function startGame(levelKey: string | null) {
     currentGame.stop();
   }
 
-  ui.classList.add('hidden');
-  canvas.classList.remove('hidden');
+  ui.classList.add("hidden");
+  canvas.classList.remove("hidden");
 
   currentGame = new Game(canvas, levelData);
   currentGame.start();
@@ -38,33 +43,34 @@ function backToMenu() {
     currentGame.stop();
     currentGame = null;
   }
-  ui.classList.remove('hidden');
-  canvas.classList.add('hidden');
+  ui.classList.remove("hidden");
+  canvas.classList.add("hidden");
 }
 
 // Add event listeners to level select buttons
+const levelButtons = document.querySelectorAll("#level-select button");
 levelButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    const level = button.getAttribute('data-level');
+  button.addEventListener("click", () => {
+    const level = (button as HTMLElement).getAttribute("data-level");
     if (level) {
       startGame(level);
     }
   });
 });
 
-window.addEventListener('keydown', (e) => {
-  if (e.code === 'Space' || e.code === 'ArrowUp') {
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space" || e.code === "ArrowUp") {
     currentGame?.handleInput();
-  } else if (e.code === 'Escape') {
+  } else if (e.code === "Escape") {
     backToMenu();
   }
 });
 
-window.addEventListener('mousedown', () => {
+window.addEventListener("mousedown", () => {
   currentGame?.handleInput();
 });
 
-window.addEventListener('touchstart', (e) => {
+window.addEventListener("touchstart", (e) => {
   if (currentGame) {
     e.preventDefault();
     currentGame.handleInput();
