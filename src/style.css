@@ -9,21 +9,37 @@ body {
   color: white;
   font-family: sans-serif;
 }
-
-canvas {
-  border: 2px solid white;
-  background-color: #000;
-}
-
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
-.hidden {
-  display: none !important;
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
 }
+#level-select button {
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #444;
+  color: white;
+  border: 1px solid #666;
+  border-radius: 5px;
+  transition: all 0.2s;
+}
+#level-select button:hover {
+  background-color: #555;
+  transform: translateY(-2px);
+}
+#level-select button:focus-visible {
+  outline: 2px solid #00ffff;
+}
+.hidden { display: none !important; }
 #controls {
   margin-top: 20px;
   font-size: 0.9em;
