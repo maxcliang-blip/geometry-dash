@@ -67,20 +67,47 @@ export class Game {
     }
   }
 
+  private findStartIndex(minX: number): number {
+    let low = 0;
+    let high = this.level.objects.length - 1;
+    let result = 0;
+
+    // We search for minX - maxObjWidth to include objects that might start before minX but overlap it
+    const searchX = minX - this.maxObjWidth;
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      if (this.level.objects[mid].x >= searchX) {
+        result = mid;
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return result;
+  }
+
+  private forEachInRange(minX: number, maxX: number, callback: (obj: GameObject) => void) {
+    const startIndex = this.findStartIndex(minX);
+    for (let i = startIndex; i < this.level.objects.length; i++) {
+      const obj = this.level.objects[i];
+      if (obj.x > maxX) break;
+      callback(obj);
+    }
+  }
+
   private checkCollisions() {
     let groundedOnObject = false;
     const pLeft = this.player.x;
     const pRight = this.player.x + this.player.width;
     const pTop = this.player.y - this.player.height;
 
-    for (const obj of this.level.objects) {
-      if (obj.x + obj.width < pLeft - 30 || obj.x > pRight + 30) continue;
-
-      const pTop = this.player.y - this.player.height;
+    this.forEachInRange(pLeft, pRight, (obj) => {
+      if (this.player.isDead) return;
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(pLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -105,12 +132,11 @@ export class Game {
           }
         }
       }
-    }
+    });
 
     if (groundedOnObject) {
       this.player.isGrounded = true;
     }
-    if (groundedOnObject) this.player.isGrounded = true;
   }
 
   private rectIntersect(x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number) {
@@ -138,17 +164,18 @@ export class Game {
     let hasSpikes = false;
 
     // Draw objects
-    for (const obj of level.objects) {
-      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) continue;
+    this.forEachInRange(cameraX, cameraX + canvas.width, (obj) => {
       if (obj.type === 'block') {
-        ctx.fillStyle = '#eee'; ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        ctx.strokeStyle = '#000'; ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        hasBlocks = true;
       } else if (obj.type === 'spike') {
-        ctx.fillStyle = '#ff4444'; ctx.beginPath(); ctx.moveTo(obj.x, -obj.y);
-        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height); ctx.lineTo(obj.x + obj.width, -obj.y);
-        ctx.fill();
+        spikePath.moveTo(obj.x, -obj.y);
+        spikePath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikePath.lineTo(obj.x + obj.width, -obj.y);
+        spikePath.closePath();
+        hasSpikes = true;
       }
-    }
+    });
 
     if (hasBlocks) {
       ctx.fillStyle = '#eee';
@@ -174,23 +201,6 @@ export class Game {
     ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
     ctx.restore(); // Restore camera transform
     ctx.restore(); // Restore global context (for cameraX, groundY translation)
-
-    // Level Progress Bar
-    const barWidth = 200;
-    const barHeight = 6;
-    const barX = (canvas.width - barWidth) / 2;
-    const barY = 20;
-    const progress = Math.min(1, player.x / this.levelLength);
-
-    // Bar background
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(barX, barY, barWidth, barHeight);
-
-    // Progress fill
-    ctx.fillStyle = '#00ffff';
-    ctx.fillRect(barX, barY, barWidth * progress, barHeight);
-
-    ctx.restore();
 
     // Progress bar (Overlay, should be drawn last after coordinate restores)
     this.drawProgressBar();
