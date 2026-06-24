@@ -16,14 +16,43 @@ canvas {
 }
 
 #ui {
-  position: absolute;
-  top: 0;
-  left: 0;
   padding: 20px;
+  text-align: center;
 }
 .hidden {
   display: none !important;
 }
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+#level-select button {
+  padding: 12px 24px;
+  font-size: 1.1em;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  transition: transform 0.1s, filter 0.1s;
+}
+#level-select button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+#level-select button:active {
+  transform: scale(0.98);
+}
+#level-select button:focus-visible {
+  outline: 3px solid #3498db;
+  outline-offset: 2px;
+}
+#level-select button[data-level='stereo-madness'] { background-color: #3498db; }
+#level-select button[data-level='cant-let-go'] { background-color: #e74c3c; }
+#level-select button[data-level='deadlocked'] { background-color: #9b59b6; }
+
 #controls {
   margin-top: 20px;
   font-size: 0.9em;
