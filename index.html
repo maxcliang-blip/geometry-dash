@@ -2,10 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Content Security Policy:
+         - default-src 'self': Only allow content from our own origin by default
+         - script-src 'self': Only allow scripts from our own origin (no inline scripts)
+         - style-src 'self': Only allow styles from our own origin (no inline styles)
+         - img-src 'self' data:: Allow images from our origin and data URIs (for small icons/placeholders)
+         - connect-src 'self' ws://localhost:* http://localhost:*: Allow API/WebSocket connections to self and local dev server
+         - object-src 'none': Prevent loading of plugins like Flash or Java
+         - base-uri 'self': Restrict the URLs which can be used in a document's <base> element
+         - form-action 'none': Prevent form submissions to keep this a pure client-side app
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*; object-src 'none'; base-uri 'self'; form-action 'none';"
     />
+    <!-- Referrer-Policy: Do not send referrer information to protect user privacy and prevent leakage of internal URL structures -->
+    <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geometry Dash Clone</title>
     <link rel="stylesheet" href="/src/style.css" />
