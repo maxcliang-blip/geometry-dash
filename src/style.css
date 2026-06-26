@@ -21,11 +21,56 @@ canvas {
   left: 0;
   padding: 20px;
 }
+
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+#level-select button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  transition:
+    transform 0.1s,
+    filter 0.1s;
+  text-align: left;
+}
+
+#level-select button:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+}
+
+#level-select button:focus-visible {
+  outline: 3px solid #3498db;
+  outline-offset: 2px;
+}
+
+#level-select button[data-level="stereo-madness"] {
+  background-color: #3498db;
+}
+
+#level-select button[data-level="cant-let-go"] {
+  background-color: #e74c3c;
+}
+
+#level-select button[data-level="deadlocked"] {
+  background-color: #9b59b6;
+}
+
 .hidden {
   display: none !important;
 }
+
 #controls {
-  margin-top: 20px;
+  margin-top: 32px;
   font-size: 0.9em;
   opacity: 0.8;
 }
