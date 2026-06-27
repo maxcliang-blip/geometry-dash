@@ -21,6 +21,54 @@ canvas {
   left: 0;
   padding: 20px;
 }
+
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+#level-select button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  background-color: transparent;
+  color: white;
+  cursor: pointer;
+  transition:
+    transform 0.1s,
+    filter 0.1s;
+}
+
+#level-select button:hover,
+#level-select button:focus-visible {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+  outline: none;
+}
+
+#level-select button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.5);
+}
+
+#level-select button[data-level="stereo-madness"] {
+  border-color: #3498db;
+  background-color: rgba(52, 152, 219, 0.2);
+}
+
+#level-select button[data-level="cant-let-go"] {
+  border-color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.2);
+}
+
+#level-select button[data-level="deadlocked"] {
+  border-color: #9b59b6;
+  background-color: rgba(155, 89, 182, 0.2);
+}
+
 .hidden {
   display: none !important;
 }
