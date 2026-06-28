@@ -73,14 +73,13 @@ export class Game {
     const pRight = this.player.x + this.player.width;
     const pTop = this.player.y - this.player.height;
 
-    for (const obj of this.level.objects) {
-      if (obj.x + obj.width < pLeft - 30 || obj.x > pRight + 30) continue;
+    this.forEachInRange(pLeft - 1, pRight + 1, (obj) => {
+      if (this.player.isDead) return;
 
-      const pTop = this.player.y - this.player.height;
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(pLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -105,16 +104,47 @@ export class Game {
           }
         }
       }
-    }
+    });
 
     if (groundedOnObject) {
       this.player.isGrounded = true;
     }
-    if (groundedOnObject) this.player.isGrounded = true;
   }
 
   private rectIntersect(x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number) {
     return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
+  }
+
+  /**
+   * Efficiently iterates over level objects in the given x-range using binary search.
+   * Time complexity: O(log N + M) where N is total objects and M is objects in range.
+   */
+  private forEachInRange(minX: number, maxX: number, callback: (obj: GameObject) => void) {
+    const objects = this.level.objects;
+    let start = 0;
+    let end = objects.length - 1;
+    let startIndex = 0;
+
+    // Binary search for the first object that COULD be in range
+    // We search for minX - maxObjWidth because an object starting before minX might still overlap
+    const searchX = minX - this.maxObjWidth;
+
+    while (start <= end) {
+      const mid = Math.floor((start + end) / 2);
+      if (objects[mid].x < searchX) {
+        start = mid + 1;
+        startIndex = mid + 1;
+      } else {
+        end = mid - 1;
+      }
+    }
+
+    for (let i = startIndex; i < objects.length; i++) {
+      const obj = objects[i];
+      if (obj.x > maxX) break; // Past the range
+      if (obj.x + obj.width < minX) continue; // Ends before range
+      callback(obj);
+    }
   }
 
   private draw() {
@@ -137,18 +167,19 @@ export class Game {
     let hasBlocks = false;
     let hasSpikes = false;
 
-    // Draw objects
-    for (const obj of level.objects) {
-      if (obj.x + obj.width < cameraX || obj.x > cameraX + canvas.width) continue;
+    // Draw objects using spatial pruning and batching
+    this.forEachInRange(cameraX, cameraX + canvas.width, (obj) => {
       if (obj.type === 'block') {
-        ctx.fillStyle = '#eee'; ctx.fillRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
-        ctx.strokeStyle = '#000'; ctx.strokeRect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        blockPath.rect(obj.x, -obj.y - obj.height, obj.width, obj.height);
+        hasBlocks = true;
       } else if (obj.type === 'spike') {
-        ctx.fillStyle = '#ff4444'; ctx.beginPath(); ctx.moveTo(obj.x, -obj.y);
-        ctx.lineTo(obj.x + obj.width / 2, -obj.y - obj.height); ctx.lineTo(obj.x + obj.width, -obj.y);
-        ctx.fill();
+        spikePath.moveTo(obj.x, -obj.y);
+        spikePath.lineTo(obj.x + obj.width / 2, -obj.y - obj.height);
+        spikePath.lineTo(obj.x + obj.width, -obj.y);
+        spikePath.closePath();
+        hasSpikes = true;
       }
-    }
+    });
 
     if (hasBlocks) {
       ctx.fillStyle = '#eee';
@@ -172,25 +203,9 @@ export class Game {
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;
     ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
-    ctx.restore(); // Restore camera transform
-    ctx.restore(); // Restore global context (for cameraX, groundY translation)
-
-    // Level Progress Bar
-    const barWidth = 200;
-    const barHeight = 6;
-    const barX = (canvas.width - barWidth) / 2;
-    const barY = 20;
-    const progress = Math.min(1, player.x / this.levelLength);
-
-    // Bar background
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(barX, barY, barWidth, barHeight);
-
-    // Progress fill
-    ctx.fillStyle = '#00ffff';
-    ctx.fillRect(barX, barY, barWidth * progress, barHeight);
-
     ctx.restore();
+
+    ctx.restore(); // Restore camera transform and global context
 
     // Progress bar (Overlay, should be drawn last after coordinate restores)
     this.drawProgressBar();
