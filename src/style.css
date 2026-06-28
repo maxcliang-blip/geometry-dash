@@ -20,9 +20,48 @@ canvas {
   top: 0;
   left: 0;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 .hidden {
   display: none !important;
+}
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+#level-select button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  transition:
+    transform 0.2s,
+    filter 0.2s;
+  text-align: left;
+}
+#level-select button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+#level-select button:focus-visible {
+  outline: 2px solid #3498db;
+  outline-offset: 4px;
+  transform: scale(1.05);
+}
+#level-select button[data-level='stereo-madness'] {
+  background-color: #3498db;
+}
+#level-select button[data-level='cant-let-go'] {
+  background-color: #e74c3c;
+}
+#level-select button[data-level='deadlocked'] {
+  background-color: #9b59b6;
 }
 #controls {
   margin-top: 20px;
