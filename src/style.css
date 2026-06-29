@@ -19,13 +19,43 @@ canvas {
   position: absolute;
   top: 0;
   left: 0;
-  padding: 20px;
+  padding: 40px;
+  max-width: 400px;
 }
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+#level-select button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.2s;
+  text-align: left;
+}
+#level-select button:hover,
+#level-select button:focus-visible {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+#level-select button[data-level='stereo-madness'] { background-color: #3498db; }
+#level-select button[data-level='cant-let-go'] { background-color: #e74c3c; }
+#level-select button[data-level='deadlocked'] { background-color: #9b59b6; }
+
 .hidden {
   display: none !important;
 }
 #controls {
-  margin-top: 20px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.9em;
   opacity: 0.8;
 }
