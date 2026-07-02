@@ -2,10 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Hardened Content Security Policy -->
+    <!-- default-src 'self': Only allow content from our own domain by default -->
+    <!-- script-src 'self': Only allow scripts from our own domain -->
+    <!-- style-src 'self': Only allow styles from our own domain -->
+    <!-- img-src 'self' data:: Allow images from our domain and data URIs -->
+    <!-- connect-src 'self' ...: Allow connections to our domain and local dev server -->
+    <!-- object-src 'none': Block all plugins like Flash or Java (defense against plugin exploits) -->
+    <!-- base-uri 'self': Prevent base URI hijacking -->
+    <!-- form-action 'none': Prevent form submissions (this app has no forms) -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*;"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws://localhost:* http://localhost:*; object-src 'none'; base-uri 'self'; form-action 'none';"
     />
+    <!-- Referrer-Policy: Do not send referrer information to protect user privacy -->
+    <meta name="referrer" content="no-referrer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geometry Dash Clone</title>
     <link rel="stylesheet" href="/src/style.css" />
