@@ -69,18 +69,17 @@ export class Game {
 
   private checkCollisions() {
     let groundedOnObject = false;
-    const pLeft = this.player.x;
-    const pRight = this.player.x + this.player.width;
-    const pTop = this.player.y - this.player.height;
+    const playerLeft = this.player.x;
+    const playerRight = this.player.x + this.player.width;
+    const playerTop = this.player.y - this.player.height;
 
     for (const obj of this.level.objects) {
-      if (obj.x + obj.width < pLeft - 30 || obj.x > pRight + 30) continue;
+      if (obj.x + obj.width < playerLeft - 30 || obj.x > playerRight + 30) continue;
 
-      const pTop = this.player.y - this.player.height;
       const objTop = -obj.y - obj.height;
       const objLeft = obj.x;
 
-      if (this.rectIntersect(playerLeft, pTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
+      if (this.rectIntersect(playerLeft, playerTop, this.player.width, this.player.height, objLeft, objTop, obj.width, obj.height)) {
         if (obj.type === 'spike') {
           this.player.isDead = true;
           return;
@@ -110,7 +109,6 @@ export class Game {
     if (groundedOnObject) {
       this.player.isGrounded = true;
     }
-    if (groundedOnObject) this.player.isGrounded = true;
   }
 
   private rectIntersect(x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number) {
