@@ -17,10 +17,48 @@ canvas {
 
 #ui {
   position: absolute;
-  top: 0;
-  left: 0;
-  padding: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
+
+#level-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+#level-select button {
+  padding: 12px 24px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+#level-select button:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+}
+
+#level-select button:focus-visible {
+  outline: 3px solid #3498db;
+  outline-offset: 2px;
+}
+
+.btn-easy { background-color: #3498db; }
+.btn-hard { background-color: #e74c3c; }
+.btn-demon { background-color: #9b59b6; }
+
 .hidden {
   display: none !important;
 }
